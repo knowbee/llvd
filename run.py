@@ -9,38 +9,44 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 import threading
 import time
+import math
+from tqdm import tqdm
 threadLocal = threading.local()
 
 
 def download(url, filename):
-    print("downloading " + filename + "\n")
+    print("\n" + filename + "\n")
     with open(f"{filename}.mp4", 'wb') as f:
         try:
             response = requests.get(
                 url, stream=True)
-            total = response.headers.get('content-length')
-            if total is None:
+            download_size = int(response.headers.get('content-length'))
+            if download_size is None:
                 print("video not found")
                 return
             else:
-                downloaded = 0
-                total = int(total)
-                for data in response.iter_content(
-                        chunk_size=max((int(total) / 1000), 1024 * 1024)):
-                    downloaded += len(data)
-                    f.write(data)
-                    done = int(50 * downloaded / total)
-                    sys.stdout.write('\r[{}{}]'.format('o' * done,
-                                                       '.' * (50 - done)))
-                    sys.stdout.flush()
-        except Exception:
+                pbar = tqdm(
+                    total=download_size,
+                    initial=0,
+                    unit='B',
+                    unit_scale=True,
+                    position=0,
+                    leave=True)
+                for chunk in response.iter_content(chunk_size=1024):
+                    if chunk:
+                        f.write(chunk)
+                        pbar.set_description("downloading")
+                        pbar.update(1024)
+                pbar.close()
+        except Exception as e:
+            print(e)
             print("network error...try again")
 
 
-@click.command()
-@click.option('--link', '-l', help='llvd --help')
-@click.option('--email', '-e', help='llvd --help')
-@click.option('--password', '-p', help='llvd --help')
+@ click.command()
+@ click.option('--link', '-l', help='llvd --help')
+@ click.option('--email', '-e', help='llvd --help')
+@ click.option('--password', '-p', help='llvd --help')
 def llvd(link, email, password):
     """
     Linkedin learning video downloader cli tool\n
@@ -83,6 +89,7 @@ def login(link, email, password):
     try:
         url = "https://www.linkedin.com/learning-login/?upsellOrderOrigin=default_guest_learning&fromSignIn=true&trk=homepage-learning_nav-header-signin"
         browser.get(url)
+        print("Connecting...")
         WebDriverWait(browser, 4).until(
             EC.presence_of_element_located((By.CLASS_NAME, "text-input__input")))
         email_field = browser.find_element_by_class_name("text-input__input")
@@ -101,8 +108,7 @@ def login(link, email, password):
 
         WebDriverWait(browser, 6).until(
             EC.presence_of_element_located((By.CLASS_NAME, "ember-application")))
-        print("Now sit back and drink your coffee :)")
-        print("\n")
+        print("Putting things together...")
         main(link)
     except Exception:
         print("Please try again and make sure your credentials are right")
@@ -119,7 +125,7 @@ Main application
 def main(link):
     browser.get(
         link)
-    time.sleep(2)
+    print("Sit back and drink your coffee :)")
     course_links = browser.find_elements_by_class_name(
         "classroom-toc-item__link")
     all_courses = [lesson.get_attribute("href") for lesson in course_links]
@@ -133,8 +139,10 @@ def main(link):
             video_title = browser.find_element_by_class_name(
                 "classroom-nav__details").text
             download(video_link.replace("#mp4", ""), video_title)
+
         except Exception:
             pass
+    print("\n" + "Finished, start learning! :)")
 
 
 if __name__ == '__main__':

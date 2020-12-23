@@ -1,12 +1,8 @@
-appdirs==1.4.4
 certifi==2020.12.5
 chardet==4.0.0
 click==7.1.2
 idna==2.10
-llvd==1.0
-pyee==7.0.4
 requests==2.25.1
 selenium==3.141.0
 tqdm==4.54.1
 urllib3==1.26.2
-websockets==8.1
