@@ -1,24 +1,12 @@
-
-#!/usr/bin/env python3
-"""
-Author:Igwaneza Bruce
-Email:knowbeeinc@gmail.com
-"""
-
-
 import requests
 import click
 import sys
 import os
-from datetime import datetime
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.common.exceptions import TimeoutException, WebDriverException
-from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.common.keys import Keys
 import threading
 import time
 threadLocal = threading.local()
@@ -113,10 +101,8 @@ def login(link, email, password):
 
         WebDriverWait(browser, 6).until(
             EC.presence_of_element_located((By.CLASS_NAME, "ember-application")))
-
-        print("You are successfully authenticated")
-        print("\n")
         print("Now sit back and drink your coffee :)")
+        print("\n")
         main(link)
     except Exception:
         print("Please try again and make sure your credentials are right")
@@ -136,11 +122,7 @@ def main(link):
     time.sleep(2)
     course_links = browser.find_elements_by_class_name(
         "classroom-toc-item__link")
-    # current_lesson = course_links[0]
-    all_courses = []
-    for lesson in course_links:
-        course_link = lesson.get_attribute("href")
-        all_courses.append(course_link)
+    all_courses = [lesson.get_attribute("href") for lesson in course_links]
     for course in all_courses:
         browser.get(course)
         try:
@@ -150,8 +132,7 @@ def main(link):
             video_link = playing_video.get_attribute("src")
             video_title = browser.find_element_by_class_name(
                 "classroom-nav__details").text
-            # download(video_link.replace("#mp4", ""), video_title)
-            print(video_link, video_title)
+            download(video_link.replace("#mp4", ""), video_title)
         except Exception:
             pass
 
