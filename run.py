@@ -5,17 +5,18 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.common.exceptions import WebDriverException
 import threading
 import time
 from lib.app import App
-threadLocal = threading.local()
 
 """
-Initialize browser
+create browser instance
 """
 
 
 def create_browser():
+    threadLocal = threading.local()
     browser = getattr(threadLocal, 'browser', None)
     if browser is None:
         options = webdriver.ChromeOptions()
@@ -27,10 +28,7 @@ def create_browser():
         browser = webdriver.Chrome(options=options, service_log_path=None)
         browser.delete_all_cookies()
         setattr(threadLocal, 'browser', browser)
-    return browser
-
-
-browser = create_browser()
+        return browser
 
 
 @ click.command()
@@ -44,6 +42,11 @@ def main(link, email, password):
     """
     if(len(sys.argv) == 1):
         print("missing required arguments: run llvd --help")
+        sys.exit(0)
+    try:
+        browser = create_browser()
+    except WebDriverException:
+        print("chromedriver is missing")
         sys.exit(0)
     llvd = App(browser, email, password, link)
     llvd.run()
