@@ -17,13 +17,12 @@
 
     $ git clone https://github.com/knowbee/llvd
     $ cd llvd
-    $ pip3 install -r requirements.txt
+    $ ./install.sh
 
 Usage
 
 ```cli
 
-    $ ./install.sh
     $ llvd --help
 ```
 
