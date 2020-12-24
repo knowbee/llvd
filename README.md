@@ -6,7 +6,7 @@
 
 ## How to use
 
-- update config.py with your linkedin login credentials
+- Update configuration, the file can be found inside config folder.
 
 ## Installation
 
