@@ -31,20 +31,14 @@
 
     - Update credentials, the file can be found inside config folder.
 
-Example
-
-```cli
-
-    $ llvd --help
-```
-
 ## Example
 
 Use llvd anywhere on your machine and download your desired course
 
 ```cli
 
-    llvd -c "Course Title"
+    $ llvd --help
+    $ llvd -c "Course Title"
 
 ```
 
