@@ -4,6 +4,10 @@
 
 - [chromedriver](https://www.kenst.com/2019/02/installing-chromedriver-on-windows/)
 
+## How to use
+
+- update config.py with your linkedin login credentials
+
 ## Installation
 
     $ git clone https://github.com/knowbee/llvd
@@ -22,7 +26,7 @@ Usage
 
 ```cli
 
-   $ llvd -email test@gmail.com --password test@123 --name "Course Title"
+   $ llvd --course "Course Title"
 
 ```
 
@@ -30,7 +34,7 @@ Usage
 
 ```cli
 
-    llvd -e test@gmail.com -p test@123 -n "Course Title"
+    llvd -c "Course Title"
 
 ```
 
