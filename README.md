@@ -1,5 +1,9 @@
 # LLVD (Linkedin Learning Video Downloader)
 
+## Prerequisites
+
+- [chromedriver](https://www.kenst.com/2019/02/installing-chromedriver-on-windows/)
+
 ## Installation
 
     $ git clone https://github.com/knowbee/llvd
@@ -8,10 +12,11 @@
 
 Usage
 
----
+```cli
 
     $ ./install.sh
     $ llvd --help
+```
 
 ## Download a playlist
 
