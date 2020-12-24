@@ -53,7 +53,17 @@ class App():
             print("llvd --help")
             self.browser.quit()
 
+    @staticmethod
+    def resumeFailedDownloads():
+        current_files = [file for file in os.listdir()]
+        if(len(current_files) > 0):
+            for file in current_files:
+                if os.stat(file).st_size == 0:
+                    os.remove(file)
+            print("resuming download.." + "\n")
+
     def crawl(self, link):
+        self.resumeFailedDownloads()
         self.browser.get(
             link)
         print("Sit back and drink your coffee :)")
@@ -73,8 +83,11 @@ class App():
                 video_link = playing_video.get_attribute("src")
                 video_title = self.browser.find_element_by_class_name(
                     "classroom-nav__details").text
-                download(video_link.replace("#mp4", ""), c, video_title)
-
+                current_files = [file.split("\n")[1] for file in os.listdir()]
+                if(video_title.split("\n")[1] + ".mp4" not in current_files):
+                    download(video_link.replace("#mp4", ""), c, video_title)
+                else:
+                    print(f"skipping: " + video_title.split("\n")[1] + "\n")
             except Exception:
                 pass
         print("\n" + "Finished, start learning! :)")
