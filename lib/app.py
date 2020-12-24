@@ -60,8 +60,11 @@ class App():
         course_links = self.browser.find_elements_by_class_name(
             "classroom-toc-item__link")
         all_courses = [lesson.get_attribute("href") for lesson in course_links]
+        c = 0
         for course in all_courses:
             self.browser.get(course)
+            c += 1
+            print(f"{c} / {len(all_courses)}")
             try:
                 WebDriverWait(self.browser, 4).until(
                     EC.presence_of_element_located((By.CLASS_NAME, "vjs-tech")))
@@ -70,7 +73,7 @@ class App():
                 video_link = playing_video.get_attribute("src")
                 video_title = self.browser.find_element_by_class_name(
                     "classroom-nav__details").text
-                download(video_link.replace("#mp4", ""), video_title)
+                download(video_link.replace("#mp4", ""), c, video_title)
 
             except Exception:
                 pass
