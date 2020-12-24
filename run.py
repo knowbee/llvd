@@ -8,6 +8,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import WebDriverException
 import threading
 import time
+import re
 from lib.app import App
 
 """
@@ -32,13 +33,13 @@ def create_browser():
 
 
 @ click.command()
-@ click.option('--link', '-l', help='llvd --help')
+@ click.option('--name', '-n', help='llvd --help')
 @ click.option('--email', '-e', help='llvd --help')
 @ click.option('--password', '-p', help='llvd --help')
-def main(link, email, password):
+def main(name, email, password):
     """
     Linkedin learning video downloader cli tool\n
-    example: llvd --email test@gmail.com --password Test@123 --link https://www.linkedin.com/learning/java-8-essential
+    example: llvd --email test@gmail.com --password Test@123 --name "Java 8 Essential"
     """
     if(len(sys.argv) == 1):
         print("missing required arguments: run llvd --help")
@@ -48,6 +49,11 @@ def main(link, email, password):
     except WebDriverException:
         print("chromedriver is missing")
         sys.exit(0)
+    url = "https://www.linkedin.com/learning/"
+    name = re.sub('[)|(|,]|(-&)', '', name.lower())
+
+    link = url + str(name).replace(" ", "-").replace(":-",
+                                                     "-").replace("-&", "")
     llvd = App(browser, email, password, link)
     llvd.run()
 
