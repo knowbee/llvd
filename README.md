@@ -18,11 +18,11 @@ Usage
     $ llvd --help
 ```
 
-## Download a playlist
+## Download a course
 
 ```cli
 
-   $ llvd -email test@gmail.com --password test@123 --link [playlist_url]
+   $ llvd -email test@gmail.com --password test@123 --name "Course Title"
 
 ```
 
@@ -30,7 +30,7 @@ Usage
 
 ```cli
 
-    llvd -e test@gmail.com -p test@123 -l [playlist_url]
+    llvd -e test@gmail.com -p test@123 -n "Course Title"
 
 ```
 
