@@ -25,12 +25,8 @@
 
     $ git clone https://github.com/knowbee/llvd
     $ cd llvd
-    $ ./install.sh
-
-## How to use
-
-    - Update credentials, the file can be found inside config folder.
-
+    $ pip install --editable .
+If you have multiple versions of python installed in your system, use **pip3** instead.
 ## Example
 
 Use llvd anywhere on your machine and download your desired course
