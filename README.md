@@ -15,6 +15,7 @@
 | ✅     | nice progress bar              |
 | ✅     | resume failed downloads        |
 | ✅     | skip already downloaded videos |
+| ❌     | all platforms                  |
 
 ## Prerequisites
 
