@@ -8,9 +8,10 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import WebDriverException
 import threading
 import time
-import re
 import config
+import re
 from lib.app import App
+
 
 """
 create browser instance
@@ -45,11 +46,10 @@ def main(course):
         print("missing required arguments: run llvd --help")
         sys.exit(0)
 
-    url = "https://www.linkedin.com/learning/"
     course = re.sub('[)|(|,]|(-&)', '', course.lower())
 
-    link = url + str(course).replace(" ", "-").replace(":-",
-                                                       "-").replace("-&", "").replace(".", "-")
+    link = config.main_url + str(course).replace(" ", "-").replace(":-",
+                                                                   "-").replace("-&", "").replace(".", "-")
     if(config.email == "" or config.password == ""):
         print("missing credentials llvd --help")
         sys.exit(0)
