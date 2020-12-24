@@ -9,6 +9,7 @@ from selenium.common.exceptions import WebDriverException
 import threading
 import time
 import re
+import config
 from lib.app import App
 
 """
@@ -33,28 +34,31 @@ def create_browser():
 
 
 @ click.command()
-@ click.option('--name', '-n', help='llvd --help')
-@ click.option('--email', '-e', help='llvd --help')
-@ click.option('--password', '-p', help='llvd --help')
-def main(name, email, password):
+@ click.option('--course', '-c', help='llvd --help')
+def main(course):
     """
     Linkedin learning video downloader cli tool\n
-    example: llvd --email test@gmail.com --password Test@123 --name "Java 8 Essential"
+    example: llvd --course "Java 8 Essential"\n
+    Remember to set login credentials in the config file
     """
     if(len(sys.argv) == 1):
         print("missing required arguments: run llvd --help")
+        sys.exit(0)
+
+    url = "https://www.linkedin.com/learning/"
+    course = re.sub('[)|(|,]|(-&)', '', course.lower())
+
+    link = url + str(course).replace(" ", "-").replace(":-",
+                                                       "-").replace("-&", "").replace(".", "-")
+    if(config.email == "" or config.password == ""):
+        print("missing credentials llvd --help")
         sys.exit(0)
     try:
         browser = create_browser()
     except WebDriverException:
         print("chromedriver is missing")
         sys.exit(0)
-    url = "https://www.linkedin.com/learning/"
-    name = re.sub('[)|(|,]|(-&)', '', name.lower())
-
-    link = url + str(name).replace(" ", "-").replace(":-",
-                                                     "-").replace("-&", "")
-    llvd = App(browser, email, password, link)
+    llvd = App(browser, config.email, config.password, link)
     llvd.run()
 
 
