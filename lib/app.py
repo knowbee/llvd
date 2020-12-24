@@ -7,6 +7,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 import threading
 import time
+import config
 from .downloader import download
 
 
@@ -21,8 +22,7 @@ class App():
 
     def run(self):
         try:
-            url = "https://www.linkedin.com/learning-login/?upsellOrderOrigin=default_guest_learning&fromSignIn=true&trk=homepage-learning_nav-header-signin"
-            self.browser.get(url)
+            self.browser.get(config.login_url)
             print("Connecting...")
             WebDriverWait(self.browser, 4).until(
                 EC.presence_of_element_located((By.CLASS_NAME, "text-input__input")))
