@@ -24,7 +24,7 @@
 
 ## Installation
 
-    $ pip install llvd
+    $ pip --no-cache-dir install llvd
 
 If you have multiple versions of python installed in your system, use **pip3** instead.
 
