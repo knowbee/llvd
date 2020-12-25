@@ -1,4 +1,4 @@
-##!/usr/bin/env  python3
+# !/usr/bin/env  python3
 
 import click
 import sys
@@ -45,7 +45,6 @@ def main(course):
     """
     Linkedin learning video downloader cli tool
     example: llvd --course "Java 8 Essential"
-    Remember to set login credentials in the config file
     """
     if len(sys.argv) == 1:
         click.echo(f"{RED_COLOR}{BOLD}Missing required arguments: llvd --help")
