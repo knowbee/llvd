@@ -8,7 +8,7 @@ with open(path.join(current_dir, "README.md"), "r") as f:
 
 setup(
     name="llvd",
-    version="0.1.1",
+    version="0.1.2",
     url="https://github.com/knowbee/llvd.git",
     author="Igwaneza Bruce",
     author_email="knowbeeinc@gmail.com",
@@ -18,7 +18,6 @@ setup(
     platforms="any",
     python_requires=">=3.6",
     packages=["llvd"],
-    py_modules=["llvd", "config", "core"],
     install_requires=[
         "certifi==2020.12.5",
         "chardet==4.0.0",
@@ -30,9 +29,9 @@ setup(
         "urllib3==1.26.2",
         "click-spinner==0.1.10",
     ],
-    entry_points="""[console_scripts]
-    llvd=llvd:main
-    """,
+    entry_points={
+        "console_scripts": ['llvd = llvd:main']
+    },
     classifiers=[
         "Environment :: Console",
         "Intended Audience :: Developers",
