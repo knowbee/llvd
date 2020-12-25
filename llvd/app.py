@@ -6,6 +6,7 @@ import time
 import re
 from llvd import config
 from llvd.downloader import download
+from click_spinner import spinner
 
 
 class App:
@@ -41,14 +42,14 @@ class App:
                 "mercado-text_input--round"
             )
             password_field.send_keys(self.password)
-            self.browser.find_element_by_class_name(
-                "btn__primary--large").click()
-
-            WebDriverWait(self.browser, 6).until(
-                EC.presence_of_element_located(
-                    (By.CLASS_NAME, "ember-application"))
-            )
-            print("\nPutting things together...")
+            with spinner():
+                self.browser.find_element_by_class_name(
+                    "btn__primary--large").click()
+                WebDriverWait(self.browser, 6).until(
+                    EC.presence_of_element_located(
+                        (By.CLASS_NAME, "ember-application"))
+                )
+                print("\nPutting things together...")
             self.crawl(self.link)
         except Exception:
             print("\nPlease try again and make sure your credentials are right")

@@ -13,7 +13,6 @@ import time
 import re
 from llvd.app import App
 from llvd import config
-from click_spinner import spinner
 
 BOLD = "\033[1m"  # Makes the text bold
 RED_COLOR = "\u001b[31m"  # Makes the text red
@@ -57,12 +56,11 @@ def main(course):
         "-&", ""
     ).replace(".", "-")
     email = click.prompt("Please enter your linkedin email address")
-    password = click.prompt("Enter your Linkedin Password: ", hide_input=True)
+    password = click.prompt("Enter your Linkedin Password", hide_input=True)
     try:
         browser = create_browser()
     except WebDriverException:
         click.echo(f"{RED_COLOR}{BOLD}Please install chromedriver")
         sys.exit(0)
-    with spinner():
-        llvd = App(browser, email, password, link)
-        llvd.run()
+    llvd = App(browser, email, password, link)
+    llvd.run()
