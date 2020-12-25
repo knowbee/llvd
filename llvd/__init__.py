@@ -16,6 +16,7 @@ from core.app import App
 from click_spinner import spinner
 
 BOLD = "\033[1m"  # Makes the text bold
+RED_COLOR = "\u001b[31m"  # Makes the text red
 
 """
 create browser instance
@@ -47,7 +48,7 @@ def main(course):
     Remember to set login credentials in the config file
     """
     if len(sys.argv) == 1:
-        click.echo(f"{BOLD}Missing required arguments: llvd --help", err=True)
+        click.echo(f"{RED_COLOR}{BOLD}Missing required arguments: llvd --help")
         sys.exit(0)
 
     course = re.sub("[)|(|,]|(-&)", "", course.lower())
@@ -55,12 +56,12 @@ def main(course):
     link = config.main_url + str(course).replace(" ", "-").replace(":-", "-").replace(
         "-&", ""
     ).replace(".", "-")
-    email = click.prompt("Please enter your linkedin email address: ")
+    email = click.prompt("Please enter your linkedin email address")
     password = click.prompt("Enter your Linkedin Password: ", hide_input=True)
     try:
         browser = create_browser()
     except WebDriverException:
-        click.echo(f"{BOLD}Please install chromedriver", err=True)
+        click.echo(f"{RED_COLOR}{BOLD}Please install chromedriver")
         sys.exit(0)
     with spinner():
         llvd = App(browser, email, password, link)
