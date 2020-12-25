@@ -5,7 +5,7 @@ import time
 
 
 def download(url, index, filename):
-    print("\n" + filename + "\n")
+    print("\n" + filename.split("\n")[1] + "\n")
     with open(f"{index}-{filename}.mp4", 'wb') as f:
         try:
             response = requests.get(
