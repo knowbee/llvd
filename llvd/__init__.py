@@ -10,9 +10,9 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import WebDriverException
 import threading
 import time
-import config
 import re
-from core.app import App
+from llvd.app import App
+from llvd import config
 from click_spinner import spinner
 
 BOLD = "\033[1m"  # Makes the text bold
@@ -44,6 +44,7 @@ def create_browser():
 def main(course):
     """
     Linkedin learning video downloader cli tool
+
     example: llvd --course "Java 8 Essential"
     """
     if len(sys.argv) == 1:
