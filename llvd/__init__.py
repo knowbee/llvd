@@ -52,7 +52,7 @@ def main(course):
 
     course = re.sub("[)|(|,]|(-&)", "", course.lower())
 
-    link = config.main_url + str(course).replace(" ", "-").replace(":-", "-").replace(
+    course_slug = course.replace(" ", "-").replace(":-", "-").replace(
         "-&", ""
     ).replace(".", "-")
     email = click.prompt("Please enter your linkedin email address")
@@ -62,5 +62,5 @@ def main(course):
     except WebDriverException:
         click.echo(f"{RED_COLOR}{BOLD}Please install chromedriver")
         sys.exit(0)
-    llvd = App(browser, email, password, link)
+    llvd = App(browser, email, password, course_slug)
     llvd.run()
