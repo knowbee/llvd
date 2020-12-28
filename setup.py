@@ -19,15 +19,15 @@ setup(
     python_requires=">=3.6",
     packages=["llvd"],
     install_requires=[
+        "beautifulsoup4==4.9.3",
         "certifi==2020.12.5",
         "chardet==4.0.0",
         "click==7.1.2",
         "idna==2.10",
         "requests==2.25.1",
-        "selenium==3.141.0",
-        "tqdm==4.54.1",
-        "urllib3==1.26.2",
-        "click-spinner==0.1.10",
+        "soupsieve==2.1",
+        "tqdm==4.55.0",
+        "urllib3==1.26.2"
     ],
     entry_points={
         "console_scripts": ['llvd = llvd:main']
