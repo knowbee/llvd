@@ -10,13 +10,13 @@ from llvd.downloader import download_video
 from click_spinner import spinner
 
 class App:
-    def __init__(self, email, password, course_slug):
+    def __init__(self, email, password, course_slug, resolution):
 
         self.email = email
         self.password = password
         self.course_slug = course_slug
         self.link = ""
-        self.video_format = "360"
+        self.video_format = resolution
         self.headers = {}
         self.cookies = {}
 
@@ -106,7 +106,7 @@ class App:
                                         video['title'])
                     video_slug = video['slug']
                     video_url = config.video_url.format(
-                        self.course_slug, video_slug)
+                        self.course_slug, self.video_format, video_slug)
                     req = requests.get(
                         video_url, cookies=self.cookies, headers=self.headers)
                     try:
