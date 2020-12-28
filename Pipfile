@@ -8,8 +8,8 @@ verify_ssl = true
 [packages]
 requests = "*"
 click = "*"
-selenium = "*"
 tqdm = "*"
+beautifulsoup4 = "*"
 
 [requires]
 python_version = "3.6"
