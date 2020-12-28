@@ -16,7 +16,7 @@ class App:
         self.password = password
         self.course_slug = course_slug
         self.link = ""
-        self.video_format = "360p"
+        self.video_format = "360"
         self.headers = {}
         self.cookies = {}
 
@@ -115,7 +115,7 @@ class App:
                         click.echo(
                             click.style(f"current: {c}", fg="red"))
                         click.echo(
-                            click.style(f"format: {self.video_format}", fg="red"))
+                            click.style(f"format: {self.video_format}p", fg="red"))
                         current_files = [file.split("-")[1].replace(".mp4", "")
                                          for file in os.listdir() if "-" in file]
                         if video_name not in current_files:
