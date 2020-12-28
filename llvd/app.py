@@ -1,21 +1,17 @@
 import os
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
-import time
 import re
+import sys
 import requests
 import click
-
+from bs4 import BeautifulSoup as bs
+from requests import Session
 from llvd import config
-from llvd.downloader import download
+from llvd.downloader import download_video
 from click_spinner import spinner
 
-
 class App:
-    def __init__(self, browser, email, password, course_slug):
+    def __init__(self, email, password, course_slug):
 
-        self.browser = browser
         self.email = email
         self.password = password
         self.course_slug = course_slug
@@ -24,69 +20,75 @@ class App:
         self.headers = {}
         self.cookies = {}
 
+
+
+    def login(self, s, login_data):
+        """
+            Login the user
+        """
+        with spinner():
+            
+            s.post(
+                config.signup_url, login_data)
+            cookies = s.cookies.get_dict()
+            self.cookies["JSESSIONID"] = cookies.get("JSESSIONID").replace(
+                '\"', "")
+            self.cookies["li_at"] = cookies.get("li_at")
+            self.headers["Csrf-Token"] = cookies.get("JSESSIONID").replace(
+                '\"', "")
+
+            if cookies.get("li_at") == None:
+                return None
+            return 200
     def run(self):
+        """
+        Main function, tries to login the user and when it succeeds, tries to download the course
+        """
         try:
-            self.browser.get(config.login_url)
-            WebDriverWait(self.browser, 4).until(
-                EC.presence_of_element_located(
-                    (By.CLASS_NAME, "text-input__input"))
-            )
-            email_field = self.browser.find_element_by_class_name(
-                "text-input__input")
-            email_field.send_keys(self.email)
-            self.browser.find_element_by_class_name(
-                "signin__button-v3").click()
+            with Session() as s:
+                site = s.get(config.login_url)
+                bs_content = bs(site.content, "html.parser")
 
-            WebDriverWait(self.browser, 4).until(
-                EC.presence_of_element_located(
-                    (By.CLASS_NAME, "mercado-text_input--round")
-                )
-            )
+                csrf = bs_content.find(
+                    'input', {'name': 'csrfToken'}).get("value")
+                loginCsrfParam = bs_content.find(
+                    "input", {"name": "loginCsrfParam"}).get("value")
+                login_data = {"session_key": self.email, "session_password": self.password,
+                              "csrfToken": csrf, "loginCsrfParam": loginCsrfParam}
 
-            time.sleep(2)
+                status = self.login(s, login_data)
 
-            password_field = self.browser.find_element_by_class_name(
-                "mercado-text_input--round"
-            )
-            password_field.send_keys(self.password)
-            with spinner():
-                self.browser.find_element_by_class_name(
-                    "btn__primary--large").click()
-                WebDriverWait(self.browser, 6).until(
-                    EC.presence_of_element_located(
-                        (By.CLASS_NAME, "ember-application"))
-                )
-                print("\nPutting things together...")
-            cookies_list = self.browser.get_cookies()
+                if status is None:
+                    print("\n")
+                    click.echo(
+                        click.style(f"Wrong credentials, try again", fg="red"))
+                    sys.exit(0)
+                else :
+                    self.download_entire_course()
 
-            for cookie in cookies_list:
-                if(cookie["name"] == "li_at"):
-                    self.cookies["li_at"] = cookie["value"]
-                if(cookie["name"] == "JSESSIONID"):
-                    self.cookies["JSESSIONID"] = cookie["value"].replace(
-                        '\"', "")
-                    self.headers["Csrf-Token"] = cookie["value"].replace(
-                        '\"', "")
-            self.browser.quit()
-            self.crawl()
-        except Exception:
-            print("\nPlease try again and make sure your credentials are right")
+        except requests.exceptions.ConnectionError:
             print("\n")
-            print("llvd --help")
-            self.browser.quit()
+            click.echo(click.style(f"You don't have internet connection", fg="red"))
 
     @staticmethod
-    def resumeFailedDownloads():
+    def resume_failed_ownloads():
+        """
+            Resume failed downloads
+        """
         current_files = [file for file in os.listdir() if ".mp4" in file]
         if len(current_files) > 0:
             for file in current_files:
                 if os.stat(file).st_size == 0:
                     os.remove(file)
-            print("resuming download.." + "\n")
+            print("\n")
+            click.echo(click.style(f"Resuming download..", fg="red"))
 
-    def crawl(self):
-        self.resumeFailedDownloads()
-        print("Sit back and drink your coffee :)")
+    def download_entire_course(self):
+        """
+            Download a course
+        """
+        self.resume_failed_ownloads()
+        print("\n")
         try:
             r = requests.get(config.course_url.format(
                 self.course_slug), cookies=self.cookies, headers=self.headers)
@@ -117,15 +119,16 @@ class App:
                         current_files = [file.split("-")[1].replace(".mp4", "")
                                          for file in os.listdir() if "-" in file]
                         if video_name not in current_files:
-                            download(download_url, c, video_name)
+                            download_video(download_url, c, video_name)
                         else:
                             click.echo(
                                 click.style(f"skipping: " +
                                             video_name + "\n", fg="green"))
                         c += 1
                     except Exception:
-                        print("network error...try again")
+                        click.echo(
+                            click.style(f"You need a premium account to download this video", fg="red"))
             print("\n" + "Finished, start learning! :)")
 
         except Exception:
-            print("network error...try again")
+            print("Your internet connection is slow")
