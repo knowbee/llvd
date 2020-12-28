@@ -20,7 +20,6 @@
 
 ## Prerequisites
 
-- [chromedriver](https://www.kenst.com/2019/02/installing-chromedriver-on-windows/)
 - [Python 3](https://www.python.org/downloads/)
 
 ## Installation
