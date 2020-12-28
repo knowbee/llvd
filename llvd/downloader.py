@@ -5,18 +5,18 @@ import time
 
 
 def download(url, index, filename):
-    print("\n" + filename.split("\n")[1] + "\n")
+    print("\n" + filename + "\n")
     with open(f"{index}-{filename}.mp4", 'wb') as f:
         try:
             response = requests.get(
-                url, stream=True)
+                url, stream=True, timeout=None)
             time.sleep(1)
             if(response and response.headers):
                 download_size = response.headers.get('content-length')
                 if download_size is None:
                     download_size = len(response.raw.read())
                     if download_size is None:
-                        print("video not found")
+                        print("network error, try again later")
                     return
                 else:
                     pbar = tqdm(
@@ -29,7 +29,7 @@ def download(url, index, filename):
                     for chunk in response.iter_content(chunk_size=1024):
                         if chunk:
                             f.write(chunk)
-                            pbar.set_description("downloading")
+                            pbar.set_description("progress")
                             pbar.update(1024)
                     pbar.close()
             else:
