@@ -36,7 +36,7 @@ Use llvd anywhere on your machine and download your desired course
 ```cli
 
     $ llvd --help
-    $ llvd -c "Course Title"
+    $ llvd -c "Course Title" -r 720
 
 ```
 
