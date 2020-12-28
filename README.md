@@ -10,13 +10,14 @@
 
 ## Features
 
-| Status | Feature                        |
-| :----- | :----------------------------- |
-| ✅     | download a course              |
-| ✅     | nice progress bar              |
-| ✅     | resume failed downloads        |
-| ✅     | skip already downloaded videos |
-| ✅     | all platforms                  |
+| Status | Feature                             |
+| :----- | :---------------------------------- |
+| ✅     | download a course                   |
+| ✅     | nice progress bar                   |
+| ✅     | resume failed downloads             |
+| ✅     | skip already downloaded videos      |
+| ✅     | set video format (360p, 540p, 720p) |
+| ✅     | all platforms                       |
 
 ## Prerequisites
 
