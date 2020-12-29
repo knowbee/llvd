@@ -12,8 +12,8 @@ RED_COLOR = "\u001b[31m"  # Makes the text red
 
 @click.command()
 @click.option("--resolution", "-r",
-              default='360',
-              help='Video resolution can either be 360, 540 or 720. 360 is the default')
+              default='720',
+              help='Video resolution can either be 360, 540 or 720. 720 is the default')
 @click.option("--course", "-c", help="Example: 'Java 8 Essential'")
 def main(course, resolution):
     """
