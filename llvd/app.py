@@ -6,7 +6,7 @@ import click
 from bs4 import BeautifulSoup as bs
 from requests import Session
 from llvd import config
-from llvd.downloader import download_video
+from llvd.downloader import download_video, download_exercises
 from click_spinner import spinner
 import re
 
@@ -97,8 +97,9 @@ class App:
             course_name = r.json()['elements'][0]['title']
             course_name = re.sub(r'[\\/*?:"<>|]', "", course_name)
             chapters = r.json()['elements'][0]['chapters']
-
+            exercise_files = r.json()["elements"][0]["exerciseFileUrls"]
             c = 1
+
             for chapter in chapters:
                 chapter_name = chapter["title"]
                 videos = chapter["videos"]
@@ -131,7 +132,8 @@ class App:
                                 click.style(f"skipping: " +
                                             video_name + "\n", fg="green"))
                         c += 1
-
+            if len(exercise_files) > 0:
+                download_exercises(exercise_files)
             print("\n" + "Finished, start learning! :)")
 
         except Exception:
