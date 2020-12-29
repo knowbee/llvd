@@ -8,6 +8,8 @@ from requests import Session
 from llvd import config
 from llvd.downloader import download_video
 from click_spinner import spinner
+import re
+
 
 class App:
     def __init__(self, email, password, course_slug, resolution):
@@ -20,14 +22,12 @@ class App:
         self.headers = {}
         self.cookies = {}
 
-
-
     def login(self, s, login_data):
         """
             Login the user
         """
         with spinner():
-            
+
             s.post(
                 config.signup_url, login_data)
             cookies = s.cookies.get_dict()
@@ -40,6 +40,7 @@ class App:
             if cookies.get("li_at") == None:
                 return None
             return 200
+
     def run(self):
         """
         Main function, tries to login the user and when it succeeds, tries to download the course
@@ -63,12 +64,13 @@ class App:
                     click.echo(
                         click.style(f"Wrong credentials, try again", fg="red"))
                     sys.exit(0)
-                else :
+                else:
                     self.download_entire_course()
 
         except requests.exceptions.ConnectionError:
             print("\n")
-            click.echo(click.style(f"You don't have internet connection", fg="red"))
+            click.echo(click.style(
+                f"You don't have internet connection", fg="red"))
 
     @staticmethod
     def resume_failed_ownloads():
@@ -116,8 +118,12 @@ class App:
                             click.style(f"current: {c}", fg="red"))
                         click.echo(
                             click.style(f"format: {self.video_format}p", fg="red"))
-                        current_files = [file.split("-")[1].replace(".mp4", "")
+                        current_files = [re.split("\d+-", file)[1].replace(".mp4", "")
                                          for file in os.listdir() if "-" in file]
+                    except Exception:
+                        click.echo(
+                            click.style(f"You probably need a premium account, or your internet is too slow to download this video", fg="red"))
+                    else:
                         if video_name not in current_files:
                             download_video(download_url, c, video_name)
                         else:
@@ -125,9 +131,7 @@ class App:
                                 click.style(f"skipping: " +
                                             video_name + "\n", fg="green"))
                         c += 1
-                    except Exception:
-                        click.echo(
-                            click.style(f"You need a premium account to download this video", fg="red"))
+
             print("\n" + "Finished, start learning! :)")
 
         except Exception:
