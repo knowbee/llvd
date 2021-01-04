@@ -7,3 +7,4 @@ requests==2.25.1
 soupsieve==2.1
 tqdm==4.55.0
 urllib3==1.26.2
+click_spinner
