@@ -10,6 +10,6 @@ requests = "*"
 click = "*"
 tqdm = "*"
 beautifulsoup4 = "*"
-
+click_spinner="*"
 [requires]
 python_version = "3.6"
