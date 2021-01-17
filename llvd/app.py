@@ -137,4 +137,5 @@ class App:
             print("\n" + "Finished, start learning! :)")
 
         except Exception:
-            print("Your internet connection is slow")
+            click.echo(
+                click.style("You must have a premium account to download this course", fg="red"))
