@@ -9,16 +9,18 @@ from llvd import config
 from llvd.downloader import download_video, download_exercises
 from click_spinner import spinner
 import re
+from llvd.subtitles import write_subtitles
 
 
 class App:
-    def __init__(self, email, password, course_slug, resolution):
+    def __init__(self, email, password, course_slug, resolution, caption):
 
         self.email = email
         self.password = password
         self.course_slug = course_slug
         self.link = ""
         self.video_format = resolution
+        self.caption = caption
         self.headers = {}
         self.cookies = {}
 
@@ -98,7 +100,7 @@ class App:
             course_name = re.sub(r'[\\/*?:"<>|]', "", course_name)
             chapters = r.json()['elements'][0]['chapters']
             exercise_files = r.json()["elements"][0]["exerciseFileUrls"]
-            c = 1
+            count = 1
 
             for chapter in chapters:
                 chapter_name = chapter["title"]
@@ -110,13 +112,22 @@ class App:
                     video_slug = video['slug']
                     video_url = config.video_url.format(
                         self.course_slug, self.video_format, video_slug)
-                    req = requests.get(
+                    page_data = requests.get(
                         video_url, cookies=self.cookies, headers=self.headers)
+                    page_json = page_data.json()
                     try:
-                        download_url = re.search(
-                            '"progressiveUrl":"(.+)"', req.text).group(1).split('","expiresAt')[0]
+                        download_url = page_json['elements'][0]['selectedVideo']['url']['progressiveUrl']
+                        try:
+                            subtitles = page_json['elements'][0]['selectedVideo']['transcript']
+                        except:
+                            click.echo(click.style(
+                                f"Subtitles not found", fg="red"))
+                            subtitles = None
+                        duration_in_ms = int(page_json['elements'][0]
+                                             ['selectedVideo']['durationInSeconds']) * 1000
+
                         click.echo(
-                            click.style(f"current: {c}", fg="red"))
+                            click.style(f"current: {count}", fg="red"))
                         click.echo(
                             click.style(f"format: {self.video_format}p", fg="red"))
                         current_files = [re.split("\d+-", file)[1].replace(".mp4", "")
@@ -126,12 +137,18 @@ class App:
                             click.style(f"You probably need a premium account, or your internet is too slow to download this video", fg="red"))
                     else:
                         if video_name not in current_files:
-                            download_video(download_url, c, video_name)
+                            if subtitles is not None and self.caption:
+                                click.echo(click.style(
+                                    f"Fetching subtitles..", fg="green"))
+                                subtitle_lines = subtitles['lines']
+                                write_subtitles(
+                                    count, subtitle_lines, video_name, duration_in_ms)
+                            download_video(download_url, count, video_name)
                         else:
                             click.echo(
                                 click.style(f"skipping: " +
                                             video_name + "\n", fg="green"))
-                        c += 1
+                        count += 1
             if len(exercise_files) > 0:
                 download_exercises(exercise_files)
             print("\n" + "Finished, start learning! :)")
