@@ -8,7 +8,7 @@ with open(path.join(current_dir, "README.md"), "r") as f:
 
 setup(
     name="llvd",
-    version="0.1.8",
+    version="0.1.9",
     url="https://github.com/knowbee/llvd.git",
     author="Igwaneza Bruce",
     author_email="knowbeeinc@gmail.com",
