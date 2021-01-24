@@ -130,11 +130,15 @@ class App:
                             click.style(f"current: {count}", fg="red"))
                         click.echo(
                             click.style(f"format: {self.video_format}p", fg="red"))
-                        current_files = [re.split("\d+-", file)[1].replace(".mp4", "")
-                                         for file in os.listdir() if "-" in file]
+                        current_files = []
+                        for file in os.listdir():
+                            if file.endswith(".mp4") and "-" in file:
+                                ff = re.split(
+                                    "\d+-", file)[1].replace(".mp4", "")
+                                current_files.append(ff)
                     except Exception:
                         click.echo(
-                            click.style(f"You probably need a premium account, or your internet is too slow to download this video", fg="red"))
+                            click.style(f"Failed to download this video, open issue", fg="red"))
                     else:
                         if video_name not in current_files:
                             if subtitles is not None and self.caption:
