@@ -13,6 +13,7 @@
 | Status | Feature                                 |
 | :----- | :-------------------------------------- |
 | ✅     | download a course and all its exercises |
+| ✅     | subtitles                               |
 | ✅     | nice progress bar                       |
 | ✅     | resume failed downloads                 |
 | ✅     | skip already downloaded videos          |
@@ -31,13 +32,27 @@ If you have multiple versions of python installed in your system, use **pip3** i
 
 ## Example
 
-Use llvd anywhere on your machine and download your desired course
-
 ```cli
 
     $ llvd --help
     $ llvd -c "Course Title" -r 720
 
+```
+
+### Download the course with subtitles
+
+Use the `--caption` flag to download videos with subtitles
+
+```cli
+
+    $ llvd -c "Course Title" -r 720 --caption
+```
+
+or
+
+```cli
+
+    $ llvd -c "Course Title" -r 720 -ca
 ```
 
 ## Author

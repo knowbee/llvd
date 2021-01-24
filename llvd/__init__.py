@@ -14,8 +14,11 @@ RED_COLOR = "\u001b[31m"  # Makes the text red
 @click.option("--resolution", "-r",
               default='720',
               help='Video resolution can either be 360, 540 or 720. 720 is the default')
+@click.option("--caption", "-ca",
+              is_flag=True,
+              help="Download subtitles")
 @click.option("--course", "-c", help="Example: 'Java 8 Essential'")
-def main(course, resolution):
+def main(course, resolution, caption):
     """
     Linkedin learning video downloader cli tool
 
@@ -33,5 +36,5 @@ def main(course, resolution):
     email = click.prompt("Please enter your Linkedin email address")
     password = click.prompt("Enter your Linkedin Password", hide_input=True)
 
-    llvd = App(email, password, course_slug, resolution)
+    llvd = App(email, password, course_slug, resolution, caption)
     llvd.run()
