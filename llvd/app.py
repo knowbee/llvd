@@ -136,9 +136,13 @@ class App:
                                 ff = re.split(
                                     "\d+-", file)[1].replace(".mp4", "")
                                 current_files.append(ff)
-                    except Exception:
-                        click.echo(
-                            click.style(f"Failed to download this video, open issue", fg="red"))
+                    except Exception as e:
+                        if 'url' in str(e):
+                            click.echo(
+                                click.style(f"This video is locked, you probably need a premium account", fg="red"))
+                        else:
+                            click.echo(
+                                click.style(f"Failed to download this video", fg="red"))
                     else:
                         if video_name not in current_files:
                             if subtitles is not None and self.caption:
@@ -157,6 +161,7 @@ class App:
                 download_exercises(exercise_files)
             print("\n" + "Finished, start learning! :)")
 
-        except Exception:
+        except Exception as e:
+            print(e)
             click.echo(
-                click.style("You must have a premium account to download this course", fg="red"))
+                click.style("Poor network connection, try again later", fg="red"))
