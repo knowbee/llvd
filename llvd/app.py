@@ -154,7 +154,7 @@ class App:
                                     f"Fetching subtitles..", fg="green"))
                                 subtitle_lines = subtitles['lines']
                                 write_subtitles(
-                                    count, subtitle_lines, video_name, duration_in_ms)
+                                    count, subtitle_lines, video_name, self.course_slug, chapter_name, duration_in_ms)
                             download_video(download_url, count,
                                            video_name, chapter_name, self.course_slug)
                         else:

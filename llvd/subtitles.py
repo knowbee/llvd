@@ -12,7 +12,7 @@ def subtitles_time_format(ms):
     return f'{hours:02}:{minutes:02}:{seconds:02},{milliseconds:02}'
 
 
-def write_subtitles(count, subs, video_name, video_duration):
+def write_subtitles(count, subs, video_name, course_slug, chapter_name, video_duration):
     """
     Writes to a file(subtitle file) caption matching the right time
     """
@@ -25,6 +25,6 @@ def write_subtitles(count, subs, video_name, video_duration):
             f"{subtitles_time_format(starts_at)} --> {subtitles_time_format(ends_at)}\n" \
             f"{caption}\n\n"
 
-    with open(f"{count}-{video_name.strip()}.srt", 'wb') as f:
+    with open(f"{course_slug}/{chapter_name}/{count}-{video_name.strip()}.srt", 'wb') as f:
         for line in starmap(subs_to_lines, enumerate(subs, start=1)):
             f.write(line.encode('utf8'))
