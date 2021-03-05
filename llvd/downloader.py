@@ -4,15 +4,16 @@ import requests
 import time
 import click
 import re
+import os
 
 
-def download_video(url, index, filename):
+def download_video(url, index, filename, chapter_name, course_slug):
     """
         Downloads a video and saves it by its name plus index for easy sorting
     """
     print("\n" + filename + "\n")
     maximum_retries = 5
-    with open(f"{index}-{filename}.mp4", 'wb') as f:
+    with open(f'{course_slug}/{chapter_name}/{index}-{filename}.mp4', 'wb') as f:
         download_size = 0
         while maximum_retries > 0:
             requests.adapters.HTTPAdapter(max_retries=maximum_retries)

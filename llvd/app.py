@@ -49,6 +49,8 @@ class App:
         """
         try:
             with Session() as s:
+                if not os.path.exists(f'{self.course_slug}'):
+                    os.makedirs(f'{self.course_slug}')
                 site = s.get(config.login_url)
                 bs_content = bs(site.content, "html.parser")
 
@@ -105,6 +107,8 @@ class App:
             for chapter in chapters:
                 chapter_name = chapter["title"]
                 videos = chapter["videos"]
+                if not os.path.exists(f'{self.course_slug}/{chapter_name}'):
+                    os.makedirs(f'{self.course_slug}/{chapter_name}')
                 for video in videos:
 
                     video_name = re.sub(r'[\\/*?:"<>|]', "",
@@ -131,7 +135,7 @@ class App:
                         click.echo(
                             click.style(f"format: {self.video_format}p", fg="red"))
                         current_files = []
-                        for file in os.listdir():
+                        for file in os.listdir(f"./{self.course_slug}/{chapter_name}"):
                             if file.endswith(".mp4") and "-" in file:
                                 ff = re.split(
                                     "\d+-", file)[1].replace(".mp4", "")
@@ -151,7 +155,8 @@ class App:
                                 subtitle_lines = subtitles['lines']
                                 write_subtitles(
                                     count, subtitle_lines, video_name, duration_in_ms)
-                            download_video(download_url, count, video_name)
+                            download_video(download_url, count,
+                                           video_name, chapter_name, self.course_slug)
                         else:
                             click.echo(
                                 click.style(f"skipping: " +
