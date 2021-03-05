@@ -13,6 +13,7 @@
 | Status | Feature                                 |
 | :----- | :-------------------------------------- |
 | ✅     | download a course and all its exercises |
+| ✅     | group videos by chapters                |
 | ✅     | subtitles                               |
 | ✅     | nice progress bar                       |
 | ✅     | resume failed downloads                 |
