@@ -12,6 +12,7 @@
 
 | Status | Feature                                 |
 | :----- | :-------------------------------------- |
+| ✅     | cookie-based authentication             |
 | ✅     | download a course and all its exercises |
 | ✅     | group videos by chapters                |
 | ✅     | subtitles                               |
@@ -37,6 +38,29 @@ If you have multiple versions of python installed in your system, use **pip3** i
 
     $ llvd --help
     $ llvd -c "Course Title" -r 720
+
+```
+
+## Cookie-based authentication
+
+- 1.  Click on the options in the google chrome (top right with 3 vertical dots).
+- 2.  After this, click on more tools followed by Developer Tools (you can also reach here by using the keyboard combination — ctrl+shift+I).
+
+- 3.  Now once you’ve gained access to the developer tools, navigate to the Application tab, and copy the value of two cookies from here named li_at and JSESSIONID respectively.
+
+- 3.  create a cookies.txt file to a place you want to download your courses then paste in the values of li_at and JSESSIONID.
+
+#### Example (`cookies.txt`)
+
+```sh
+li_at=xxxxx
+JSESSIONID="ajax:xxxxxx"
+```
+
+```cli
+
+    $ llvd --help
+    $ llvd -c "Course Title" -r 720 --cookies
 
 ```
 
