@@ -5,3 +5,4 @@ local.*
 *.egg-info
 build
 dist
+*.txt
