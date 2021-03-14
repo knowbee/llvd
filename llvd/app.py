@@ -170,7 +170,7 @@ class App:
                                             video_name + "\n", fg="green"))
                         count += 1
             if len(exercise_files) > 0:
-                download_exercises(exercise_files)
+                download_exercises(exercise_files, self.course_slug)
             print("\n" + "Finished, start learning! :)")
 
         except Exception as e:

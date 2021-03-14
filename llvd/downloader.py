@@ -40,7 +40,7 @@ def download_video(url, index, filename, chapter_name, course_slug):
         print("\n")
 
 
-def download_exercises(links):
+def download_exercises(links, course_slug):
     """
         Downloads exercises
     """
@@ -52,7 +52,7 @@ def download_exercises(links):
 
         filename = re.split("exercises/(.+).zip", link)[1]
 
-        with open(f"{filename}.zip", 'wb') as f:
+        with open(f"{course_slug}/{filename}.zip", 'wb') as f:
             download_size = 0
             while maximum_retries > 0:
                 requests.adapters.HTTPAdapter(max_retries=maximum_retries)

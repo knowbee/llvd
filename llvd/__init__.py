@@ -6,6 +6,8 @@ import re
 from llvd.app import App
 from llvd import config
 from llvd.process_io import parse_cookie_file
+
+
 BOLD = "\033[1m"  # Makes the text bold
 RED_COLOR = "\u001b[31m"  # Makes the text red
 
@@ -36,10 +38,10 @@ def main(cookies, course, resolution, caption):
         "-&", ""
     ).replace(".", "-")
 
+    email = ""
+    password = ""
     if cookies:
         cookie_dict = parse_cookie_file()
-        email = ""
-        password = ""
         llvd = App(email, password, course_slug, resolution, caption)
         llvd.run(cookie_dict)
     else:
