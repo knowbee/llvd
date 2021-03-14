@@ -43,33 +43,40 @@ class App:
                 return None
             return 200
 
-    def run(self):
+    def run(self, cookies=None):
         """
         Main function, tries to login the user and when it succeeds, tries to download the course
         """
         try:
-            with Session() as s:
-                if not os.path.exists(f'{self.course_slug}'):
-                    os.makedirs(f'{self.course_slug}')
-                site = s.get(config.login_url)
-                bs_content = bs(site.content, "html.parser")
 
-                csrf = bs_content.find(
-                    'input', {'name': 'csrfToken'}).get("value")
-                loginCsrfParam = bs_content.find(
-                    "input", {"name": "loginCsrfParam"}).get("value")
-                login_data = {"session_key": self.email, "session_password": self.password,
-                              "csrfToken": csrf, "loginCsrfParam": loginCsrfParam}
+            if cookies is not None:
+                self.cookies["JSESSIONID"] = cookies.get("JSESSIONID")
+                self.cookies["li_at"] = cookies.get("li_at")
+                self.headers["Csrf-Token"] = cookies.get("JSESSIONID")
+                self.download_entire_course()
+            else:
+                with Session() as s:
+                    if not os.path.exists(f'{self.course_slug}'):
+                        os.makedirs(f'{self.course_slug}')
+                    site = s.get(config.login_url)
+                    bs_content = bs(site.content, "html.parser")
 
-                status = self.login(s, login_data)
+                    csrf = bs_content.find(
+                        'input', {'name': 'csrfToken'}).get("value")
+                    loginCsrfParam = bs_content.find(
+                        "input", {"name": "loginCsrfParam"}).get("value")
+                    login_data = {"session_key": self.email, "session_password": self.password,
+                                  "csrfToken": csrf, "loginCsrfParam": loginCsrfParam}
 
-                if status is None:
-                    print("\n")
-                    click.echo(
-                        click.style(f"Wrong credentials, try again", fg="red"))
-                    sys.exit(0)
-                else:
-                    self.download_entire_course()
+                    status = self.login(s, login_data)
+
+                    if status is None:
+                        print("\n")
+                        click.echo(
+                            click.style(f"Wrong credentials, try again", fg="red"))
+                        sys.exit(0)
+                    else:
+                        self.download_entire_course()
 
         except requests.exceptions.ConnectionError:
             print("\n")
