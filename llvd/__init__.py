@@ -42,6 +42,11 @@ def main(cookies, course, resolution, caption):
     password = ""
     if cookies:
         cookie_dict = parse_cookie_file()
+        if "li_at" not in cookie_dict or "JSESSIONID" not in cookie_dict:
+            click.echo(
+                click.style(f"cookies.txt must not be empty", fg="red"))
+            sys.exit(0)
+
         llvd = App(email, password, course_slug, resolution, caption)
         llvd.run(cookie_dict)
     else:
