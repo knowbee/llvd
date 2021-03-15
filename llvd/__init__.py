@@ -14,7 +14,8 @@ RED_COLOR = "\u001b[31m"  # Makes the text red
 
 @click.command()
 @click.option('--cookies', is_flag=True,
-              prompt='Do you want to login with cookies?')
+              prompt='Do you want to login with cookies?',
+              help="Authenticate with cookies by following the guidelines provided in the documentation")
 @click.option("--resolution", "-r",
               default='720',
               help='Video resolution can either be 360, 540 or 720. 720 is the default')
