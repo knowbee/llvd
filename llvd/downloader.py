@@ -5,6 +5,7 @@ import time
 import click
 import re
 import os
+from llvd.utils import clean_name
 
 
 def download_video(url, index, filename, chapter_name, course_slug):
@@ -13,7 +14,7 @@ def download_video(url, index, filename, chapter_name, course_slug):
     """
     print("\n" + filename + "\n")
     maximum_retries = 5
-    with open(f'{course_slug}/{chapter_name}/{index}-{filename}.mp4', 'wb') as f:
+    with open(f'{course_slug}/{clean_name(chapter_name)}/{index}-{clean_name(filename)}.mp4', 'wb') as f:
         download_size = 0
         while maximum_retries > 0:
             requests.adapters.HTTPAdapter(max_retries=maximum_retries)
@@ -52,7 +53,7 @@ def download_exercises(links, course_slug):
 
         filename = re.split("exercises/(.+).zip", link)[1]
 
-        with open(f"{course_slug}/{filename}.zip", 'wb') as f:
+        with open(f"{course_slug}/{clean_name(filename)}.zip", 'wb') as f:
             download_size = 0
             while maximum_retries > 0:
                 requests.adapters.HTTPAdapter(max_retries=maximum_retries)

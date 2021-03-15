@@ -9,7 +9,7 @@ from llvd import config
 from llvd.downloader import download_video, download_exercises
 from click_spinner import spinner
 import re
-from llvd.subtitles import write_subtitles
+from llvd.utils import write_subtitles, clean_name
 
 
 class App:
@@ -114,8 +114,9 @@ class App:
             for chapter in chapters:
                 chapter_name = chapter["title"]
                 videos = chapter["videos"]
-                if not os.path.exists(f'{self.course_slug}/{chapter_name}'):
-                    os.makedirs(f'{self.course_slug}/{chapter_name}')
+                if not os.path.exists(f'{self.course_slug}/{clean_name(chapter_name)}'):
+                    os.makedirs(
+                        f'{self.course_slug}/{clean_name(chapter_name)}')
                 for video in videos:
 
                     video_name = re.sub(r'[\\/*?:"<>|]', "",
@@ -142,7 +143,7 @@ class App:
                         click.echo(
                             click.style(f"format: {self.video_format}p", fg="red"))
                         current_files = []
-                        for file in os.listdir(f"./{self.course_slug}/{chapter_name}"):
+                        for file in os.listdir(f"./{self.course_slug}/{clean_name(chapter_name)}"):
                             if file.endswith(".mp4") and "-" in file:
                                 ff = re.split(
                                     "\d+-", file)[1].replace(".mp4", "")
