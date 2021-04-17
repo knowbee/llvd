@@ -81,7 +81,7 @@ class App:
         except requests.exceptions.ConnectionError:
             print("\n")
             click.echo(click.style(
-                f"You don't have internet connection", fg="red"))
+                f"Failed to connect", fg="red"))
 
     @staticmethod
     def resume_failed_ownloads():
@@ -177,4 +177,4 @@ class App:
         except Exception as e:
             print(e)
             click.echo(
-                click.style("Poor network connection, try again later", fg="red"))
+                click.style("Failed to connect, try again later", fg="red"))

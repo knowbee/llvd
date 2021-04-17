@@ -33,11 +33,8 @@ def main(cookies, course, resolution, caption):
         click.echo(f"{RED_COLOR}{BOLD}Missing required arguments: llvd --help")
         sys.exit(0)
 
-    course = re.sub("[)|(|,]|(-&)", "", course.lower())
-
-    course_slug = course.replace(" ", "-").replace(":-", "-").replace(
-        "-&", ""
-    ).replace(".", "-")
+    course = course.lower().replace("c#", "c-sharp").replace(".net", "dot-net")
+    course_slug= re.sub(r'[\'\s+:)(,>.’/]', " ", course).replace(" ", "-")
 
     email = ""
     password = ""
