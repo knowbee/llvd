@@ -34,8 +34,8 @@ def main(cookies, course, resolution, caption):
         sys.exit(0)
 
     course = course.lower().replace("c#", "c-sharp").replace(".net", "dot-net")
-    course_slug= re.sub(r'[\'\s+:)(,>.’/]', " ", course).replace(" ", "-")
-
+    without_chars = re.sub(r'[\':)(,>.’/]', " ", course.strip()).replace("«", " ").replace("-»", " ").replace("»", " ").strip()
+    course_slug= re.sub(r'(\s+)', "", without_chars.lower()))
     email = ""
     password = ""
     if cookies:
