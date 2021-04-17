@@ -156,7 +156,7 @@ class App:
                             click.echo(
                                 click.style(f"Failed to download this video", fg="red"))
                     else:
-                        if video_name not in current_files:
+                        if clean_name(video_name) not in current_files:
                             if subtitles is not None and self.caption:
                                 click.echo(click.style(
                                     f"Fetching subtitles..", fg="green"))

@@ -12,7 +12,7 @@ def download_video(url, index, filename, chapter_name, course_slug):
     """
         Downloads a video and saves it by its name plus index for easy sorting
     """
-    print("\n" + filename + "\n")
+    print("\n" + clean_name(filename) + "\n")
     maximum_retries = 5
     with open(f'{course_slug}/{clean_name(chapter_name)}/{index}-{clean_name(filename)}.mp4', 'wb') as f:
         download_size = 0

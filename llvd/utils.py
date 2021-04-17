@@ -29,8 +29,8 @@ def write_subtitles(count, subs, video_name, course_slug, chapter_name, video_du
         for line in starmap(subs_to_lines, enumerate(subs, start=1)):
             f.write(line.encode('utf8'))
 
-
 def clean_name(name):
     digit_removed = re.sub(r'^\d+\.', "", name)
-    chars_removed = re.sub(r'[\\:<>"/|?*]', "", digit_removed)
-    return chars_removed.strip()
+    chars_removed = re.sub(r'[\\:<>"/|?*’.\')(,]', "", digit_removed).replace("«", " ").replace("-»", " ").replace("»", " ").strip()
+    extra_space_removed= re.sub(r'(\s+)', " ", chars_removed)
+    return extra_space_removed.strip()
