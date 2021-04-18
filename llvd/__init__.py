@@ -22,12 +22,12 @@ RED_COLOR = "\u001b[31m"  # Makes the text red
 @click.option("--caption", "-ca",
               is_flag=True,
               help="Download subtitles")
-@click.option("--course", "-c", help="Example: 'Java 8 Essential'")
+@click.option("--course", "-c", help="Example: 'java-8-essential'")
 def main(cookies, course, resolution, caption):
     """
     Linkedin learning video downloader cli tool
 
-    example: llvd --course "Java 8 Essential"
+    example: llvd --course "java-8-essential"
     """
     if len(sys.argv) == 1:
         click.echo(f"{RED_COLOR}{BOLD}Missing required arguments: llvd --help")
