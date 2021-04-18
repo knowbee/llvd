@@ -37,9 +37,14 @@ If you have multiple versions of python installed in your system, use **pip3** i
 ```cli
 
     $ llvd --help
-    $ llvd -c "Course Title" -r 720
+    $ llvd -c "course-slug" -r 720
 
 ```
+
+## How to find the course slug ?
+
+- Click on the course
+- Copy the slug next to learning in the URL `https://www.linkedin.com/learning/l-essentiel-d-asp-dot-net-core-pour-dot-net-5`, in this example the course slug is `l-essentiel-d-asp-dot-net-core-pour-dot-net-5`
 
 ## Cookie-based authentication
 
@@ -60,7 +65,7 @@ JSESSIONID="ajax:xxxxxx"
 ```cli
 
     $ llvd --help
-    $ llvd -c "Course Title" -r 720 --cookies
+    $ llvd -c "course-slug" -r 720 --cookies
 
 ```
 
@@ -70,14 +75,14 @@ Use the `--caption` flag to download videos with subtitles
 
 ```cli
 
-    $ llvd -c "Course Title" -r 720 --caption
+    $ llvd -c "course-slug" -r 720 --caption
 ```
 
 or
 
 ```cli
 
-    $ llvd -c "Course Title" -r 720 -ca
+    $ llvd -c "course-slug" -r 720 -ca
 ```
 
 ## Author
