@@ -33,9 +33,9 @@ def main(cookies, course, resolution, caption):
         click.echo(f"{RED_COLOR}{BOLD}Missing required arguments: llvd --help")
         sys.exit(0)
 
-    course = course.lower().replace("c#", "c-sharp").replace(".net", "dot-net")
+    course = course.lower().replace("c#", "c-sharp").replace(".net", "-dot-net")
     without_chars = re.sub(r'[\':)(,>.’/]', " ", course.strip()).replace("«", " ").replace("-»", " ").replace("»", " ").strip()
-    course_slug= re.sub(r'(\s+)', "-", without_chars.lower())
+    course_slug= re.sub(r'(\s+)', "-", without_chars.lower()).replace("--", "-")
     email = ""
     password = ""
     if cookies:
