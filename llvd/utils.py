@@ -34,3 +34,8 @@ def clean_name(name):
     chars_removed = re.sub(r'[\\:<>"/|?*’.\')(,]', "", digit_removed).replace("«", " ").replace("-»", " ").replace("»", " ").strip()
     extra_space_removed= re.sub(r'(\s+)', " ", chars_removed)
     return extra_space_removed.strip()
+
+def clean_dir(course_name):
+    course = course_name.lower().replace("c#", "c-sharp").replace(".net", "-dot-net")
+    without_chars = re.sub(r'[\':)(,>.’/]', " ", course.strip()).replace("«", " ").replace("-»", " ").replace("»", " ").strip()
+    return re.sub(r'(\s+)', "-", without_chars).replace("--", "-")
