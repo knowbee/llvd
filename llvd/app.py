@@ -161,10 +161,9 @@ class App:
                             download_video(download_url, count,
                                            video_name, chapter_name, self.course_slug)
                         else:
-                            click.echo(
-                                click.style(f"skipping: " +
-                                            video_name + "\n", fg="green"))
-                        count += 1
+                            click.echo(f"Skipping already existing video...")
+                    video_index += 1
+
             if len(exercise_files) > 0:
                 download_exercises(exercise_files, course_path)
             click.echo("\nFinished, start learning! :)")
