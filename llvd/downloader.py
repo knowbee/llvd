@@ -1,20 +1,20 @@
 
 from tqdm import tqdm
+from itertools import starmap
 import requests
 import time
 import click
 import re
 import os
-from llvd.utils import clean_name
+from llvd.utils import clean_name, subtitles_time_format
 
 
-def download_video(url, index, filename, chapter_name, course_slug):
+def download_video(url, index, filename, path):
     """
         Downloads a video and saves it by its name plus index for easy sorting
     """
-    print("\n" + clean_name(filename) + "\n")
     maximum_retries = 5
-    with open(f'{course_slug}/{clean_name(chapter_name)}/{index}-{clean_name(filename)}.mp4', 'wb') as f:
+    with open(f'{path}/{index:0=2d}-{clean_name(filename)}.mp4', 'wb') as f:
         download_size = 0
         while maximum_retries > 0:
             requests.adapters.HTTPAdapter(max_retries=maximum_retries)
@@ -35,7 +35,7 @@ def download_video(url, index, filename, chapter_name, course_slug):
         for chunk in response.iter_content(chunk_size=1024):
             if chunk:
                 f.write(chunk)
-                pbar.set_description("progress")
+                pbar.set_description("Downloading video... ")
                 pbar.update(len(chunk))
         pbar.close()
 
@@ -58,19 +58,17 @@ def download_subtitles(index, subs, video_name, path, video_duration):
             f.write(line.encode('utf8'))
 
 
-def download_exercises(links, course_slug):
+def download_exercises(links, path):
     """
         Downloads exercises
     """
-    maximum_retries = 5
-    click.echo(
-        click.style(f"Downloading exercise files..." + "\n", fg="green"))
+    maximum_retries = 3
 
     for link in links:
 
         filename = re.split("exercises/(.+).zip", link)[1]
 
-        with open(f"{course_slug}/{clean_name(filename)}.zip", 'wb') as f:
+        with open(f"{path}/{clean_name(filename)}.zip", 'wb') as f:
             download_size = 0
             while maximum_retries > 0:
                 requests.adapters.HTTPAdapter(max_retries=maximum_retries)
@@ -91,7 +89,7 @@ def download_exercises(links, course_slug):
             for chunk in response.iter_content(chunk_size=1024):
                 if chunk:
                     f.write(chunk)
-                    pbar.set_description("progress")
+                    pbar.set_description("Downloading exercise files... ")
                     pbar.update(len(chunk))
             pbar.close()
             print("\n")
