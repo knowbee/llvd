@@ -56,8 +56,6 @@ class App:
                 self.download_entire_course()
             else:
                 with Session() as s:
-                    if not os.path.exists(f'{self.course_slug}'):
-                        os.makedirs(f'{self.course_slug}')
                     site = s.get(config.login_url)
                     bs_content = bs(site.content, "html.parser")
 
@@ -71,11 +69,12 @@ class App:
                     status = self.login(s, login_data)
 
                     if status is None:
-                        print("\n")
                         click.echo(
                             click.style(f"Wrong credentials, try again", fg="red"))
                         sys.exit(0)
                     else:
+                        if not os.path.exists(f'{self.course_slug}'):
+                            os.makedirs(f'{self.course_slug}')
                         self.download_entire_course()
 
         except requests.exceptions.ConnectionError:
