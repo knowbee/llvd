@@ -38,7 +38,24 @@ def download_video(url, index, filename, chapter_name, course_slug):
                 pbar.set_description("progress")
                 pbar.update(len(chunk))
         pbar.close()
-        print("\n")
+
+def download_subtitles(index, subs, video_name, path, video_duration):
+    """
+    Writes to a file(subtitle file) caption matching the right time
+    """
+    def subs_to_lines(idx, sub):
+        starts_at = sub['transcriptStartAt']
+        ends_at = subs[idx]['transcriptStartAt'] if idx < len(
+            subs) else video_duration
+        caption = sub['caption']
+        return f"{idx}\n" \
+            f"{subtitles_time_format(starts_at)} --> {subtitles_time_format(ends_at)}\n" \
+            f"{caption}\n\n"
+
+    with open(f"{path}/{index:0=2d}-{clean_name(video_name).strip()}.srt", 'wb') as f:
+        click.echo(f"Downloading subtitles..")
+        for line in starmap(subs_to_lines, enumerate(subs, start=1)):
+            f.write(line.encode('utf8'))
 
 
 def download_exercises(links, course_slug):
