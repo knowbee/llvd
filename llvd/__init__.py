@@ -15,7 +15,6 @@ RED_COLOR = "\u001b[31m"  # Makes the text red
 
 @click.command()
 @click.option('--cookies', is_flag=True,
-              prompt='Do you want to login with cookies?',
               help="Authenticate with cookies by following the guidelines provided in the documentation")
 @click.option("--resolution", "-r",
               default='720',
@@ -35,21 +34,28 @@ def main(cookies, course, resolution, caption):
         sys.exit(0)
 
     course_slug = clean_dir(course)
-    email = ""
-    password = ""
+
+    email = config.email
+    password = config.password
+
     if cookies:
         cookie_dict = parse_cookie_file()
         if "li_at" not in cookie_dict or "JSESSIONID" not in cookie_dict:
             click.echo(
                 click.style(f"cookies.txt must not be empty", fg="red"))
             sys.exit(0)
+        else:
+            click.echo(
+                click.style(f"Using cookie info from cookies.txt", fg="green"))
 
         llvd = App(email, password, course_slug, resolution, caption)
         llvd.run(cookie_dict)
     else:
-        email = click.prompt("Please enter your Linkedin email address")
-        password = click.prompt(
-            "Enter your Linkedin Password", hide_input=True)
+        if email == "":
+            email = click.prompt("Please enter your Linkedin email address")
+        if password == "":
+            password = click.prompt(
+                "Enter your Linkedin Password", hide_input=True)
 
         llvd = App(email, password, course_slug, resolution, caption)
         llvd.run()
