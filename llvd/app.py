@@ -78,9 +78,7 @@ class App:
                         self.download_entire_course()
 
         except requests.exceptions.ConnectionError:
-            print("\n")
-            click.echo(click.style(
-                f"Failed to connect", fg="red"))
+            click.echo(click.style(f"Failed to connect", fg="red"))
 
     @staticmethod
     def resume_failed_ownloads():
@@ -92,7 +90,6 @@ class App:
             for file in current_files:
                 if os.stat(file).st_size == 0:
                     os.remove(file)
-            print("\n")
             click.echo(click.style(f"Resuming download..", fg="red"))
 
     def download_entire_course(self):
@@ -100,7 +97,6 @@ class App:
             Download a course
         """
         self.resume_failed_ownloads()
-        print("\n")
         try:
             r = requests.get(config.course_url.format(
                 self.course_slug), cookies=self.cookies, headers=self.headers)
@@ -170,8 +166,8 @@ class App:
                                             video_name + "\n", fg="green"))
                         count += 1
             if len(exercise_files) > 0:
-                download_exercises(exercise_files, self.course_slug)
-            print("\n" + "Finished, start learning! :)")
+                download_exercises(exercise_files, course_path)
+            click.echo("\nFinished, start learning! :)")
 
         except Exception as e:
             print(e)
