@@ -148,7 +148,7 @@ class App:
                     except Exception as e:
                         if 'url' in str(e):
                             click.echo(
-                                click.style(f"This video is locked, you probably"\
+                                click.style(f"This video is locked, you probably "\
                                     f"need a premium account", fg="red"))
                         else:
                             click.echo(
