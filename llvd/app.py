@@ -6,10 +6,10 @@ import click
 from bs4 import BeautifulSoup as bs
 from requests import Session
 from llvd import config
-from llvd.downloader import download_video, download_exercises
+from llvd.downloader import download_subtitles, download_video, download_exercises
 from click_spinner import spinner
 import re
-from llvd.utils import write_subtitles, clean_name
+from llvd.utils import clean_name
 
 
 class App:
@@ -56,8 +56,6 @@ class App:
                 self.download_entire_course()
             else:
                 with Session() as s:
-                    if not os.path.exists(f'{self.course_slug}'):
-                        os.makedirs(f'{self.course_slug}')
                     site = s.get(config.login_url)
                     bs_content = bs(site.content, "html.parser")
 
@@ -71,17 +69,16 @@ class App:
                     status = self.login(s, login_data)
 
                     if status is None:
-                        print("\n")
                         click.echo(
                             click.style(f"Wrong credentials, try again", fg="red"))
                         sys.exit(0)
                     else:
+                        if not os.path.exists(f'{self.course_slug}'):
+                            os.makedirs(f'{self.course_slug}')
                         self.download_entire_course()
 
         except requests.exceptions.ConnectionError:
-            print("\n")
-            click.echo(click.style(
-                f"Failed to connect", fg="red"))
+            click.echo(click.style(f"Failed to connect", fg="red"))
 
     @staticmethod
     def resume_failed_ownloads():
@@ -93,7 +90,6 @@ class App:
             for file in current_files:
                 if os.stat(file).st_size == 0:
                     os.remove(file)
-            print("\n")
             click.echo(click.style(f"Resuming download..", fg="red"))
 
     def download_entire_course(self):
@@ -101,7 +97,6 @@ class App:
             Download a course
         """
         self.resume_failed_ownloads()
-        print("\n")
         try:
             r = requests.get(config.course_url.format(
                 self.course_slug), cookies=self.cookies, headers=self.headers)
@@ -109,16 +104,19 @@ class App:
             course_name = re.sub(r'[\\/*?:"<>|]', "", course_name)
             chapters = r.json()['elements'][0]['chapters']
             exercise_files = r.json()["elements"][0]["exerciseFileUrls"]
-            count = 1
+            chapters_index = 1
 
             for chapter in chapters:
                 chapter_name = chapter["title"]
                 videos = chapter["videos"]
-                if not os.path.exists(f'{self.course_slug}/{clean_name(chapter_name)}'):
-                    os.makedirs(
-                        f'{self.course_slug}/{clean_name(chapter_name)}')
-                for video in videos:
+                chapter_path = f'./{self.course_slug}/{chapters_index:0=2d}-{clean_name(chapter_name)}'
+                course_path = f'./{self.course_slug}'
+                chapters_index += 1
+                video_index = 1
 
+                if not os.path.exists(chapter_path):
+                    os.makedirs(chapter_path)
+                for video in videos:
                     video_name = re.sub(r'[\\/*?:"<>|]', "",
                                         video['title'])
                     video_slug = video['slug']
@@ -139,11 +137,10 @@ class App:
                                              ['selectedVideo']['durationInSeconds']) * 1000
 
                         click.echo(
-                            click.style(f"current: {count}", fg="red"))
-                        click.echo(
-                            click.style(f"format: {self.video_format}p", fg="red"))
+                            click.style(f"\nCurrent: {chapters_index:0=2d}-{clean_name(chapter_name)}/"\
+                                f"{video_index:0=2d}-{video_name}.mp4 @{self.video_format}p"))
                         current_files = []
-                        for file in os.listdir(f"./{self.course_slug}/{clean_name(chapter_name)}"):
+                        for file in os.listdir(chapter_path):
                             if file.endswith(".mp4") and "-" in file:
                                 ff = re.split(
                                     "\d+-", file)[1].replace(".mp4", "")
@@ -151,28 +148,25 @@ class App:
                     except Exception as e:
                         if 'url' in str(e):
                             click.echo(
-                                click.style(f"This video is locked, you probably need a premium account", fg="red"))
+                                click.style(f"This video is locked, you probably "\
+                                    f"need a premium account", fg="red"))
                         else:
                             click.echo(
-                                click.style(f"Failed to download this video", fg="red"))
+                                click.style(f"Failed to download {video_name}", fg="red"))
                     else:
                         if clean_name(video_name) not in current_files:
+                            download_video(download_url, video_index, video_name, chapter_path)
                             if subtitles is not None and self.caption:
-                                click.echo(click.style(
-                                    f"Fetching subtitles..", fg="green"))
                                 subtitle_lines = subtitles['lines']
-                                write_subtitles(
-                                    count, subtitle_lines, video_name, self.course_slug, chapter_name, duration_in_ms)
-                            download_video(download_url, count,
-                                           video_name, chapter_name, self.course_slug)
+                                download_subtitles(
+                                    video_index, subtitle_lines, video_name, chapter_path, duration_in_ms)
                         else:
-                            click.echo(
-                                click.style(f"skipping: " +
-                                            video_name + "\n", fg="green"))
-                        count += 1
+                            click.echo(f"Skipping already existing video...")
+                    video_index += 1
+
             if len(exercise_files) > 0:
-                download_exercises(exercise_files, self.course_slug)
-            print("\n" + "Finished, start learning! :)")
+                download_exercises(exercise_files, course_path)
+            click.echo("\nFinished, start learning! :)")
 
         except Exception as e:
             print(e)
