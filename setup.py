@@ -3,7 +3,7 @@ from os import path
 
 current_dir = path.abspath(path.dirname(__file__))
 
-with open(path.join(current_dir, "README.md"), "r") as f:
+with open(path.join(current_dir, "README.md"), "r", encoding="utf-8") as f:
     readme = f.read()
 
 setup(
