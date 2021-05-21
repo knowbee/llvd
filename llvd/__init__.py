@@ -26,7 +26,6 @@ RED_COLOR = "\u001b[31m"  # Makes the text red
 def main(cookies, course, resolution, caption):
     """
     Linkedin learning video downloader cli tool
-
     example: llvd --course "java-8-essential"
     """
     if len(sys.argv) == 1:
@@ -59,5 +58,3 @@ def main(cookies, course, resolution, caption):
 
         llvd = App(email, password, course_slug, resolution, caption)
         llvd.run()
-if __name__ == "__main__":
-    main()
