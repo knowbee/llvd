@@ -23,6 +23,9 @@ class App:
         self.caption = caption
         self.headers = {}
         self.cookies = {}
+        self.chapter_path = ""
+        self.current_video_index = None
+        self.current_video_name = ""
 
     def login(self, s, login_data):
         """
@@ -113,18 +116,21 @@ class App:
                 course_path = f'./{self.course_slug}'
                 chapters_index += 1
                 video_index = 1
-
+                self.chapter_path = f'./{self.course_slug}/{chapters_index-1:0=2d}-{clean_name(chapter_name)}'
                 if not os.path.exists(chapter_path):
                     os.makedirs(chapter_path)
                 for video in videos:
                     video_name = re.sub(r'[\\/*?:"<>|]', "",
                                         video['title'])
+                    self.current_video_name = video_name
                     video_slug = video['slug']
                     video_url = config.video_url.format(
                         self.course_slug, self.video_format, video_slug)
                     page_data = requests.get(
                         video_url, cookies=self.cookies, headers=self.headers)
                     page_json = page_data.json()
+                    self.current_video_index = video_index
+
                     try:
                         download_url = page_json['elements'][0]['selectedVideo']['url']['progressiveUrl']
                         try:
@@ -162,6 +168,7 @@ class App:
                                     video_index, subtitle_lines, video_name, chapter_path, duration_in_ms)
                         else:
                             click.echo(f"Skipping already existing video...")
+                            
                     video_index += 1
 
             if len(exercise_files) > 0:
@@ -169,6 +176,6 @@ class App:
             click.echo("\nFinished, start learning! :)")
 
         except Exception as e:
-            print(e)
-            click.echo(
-                click.style("Failed to connect, try again later", fg="red"))
+            os.remove(f'{self.chapter_path}/{self.current_video_index:0=2d}-{clean_name(self.current_video_name)}.mp4')
+            self.download_entire_course()
+            
