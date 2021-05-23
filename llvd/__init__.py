@@ -58,6 +58,3 @@ def main(cookies, course, resolution, caption):
 
         llvd = App(email, password, course_slug, resolution, caption)
         llvd.run()
-
-if __name__ == "__main__":
-    main()
