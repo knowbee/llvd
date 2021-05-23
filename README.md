@@ -41,6 +41,10 @@ If you have multiple versions of python installed in your system, use **pip3** i
 
 ```
 
+## Windows Users
+
+When you get `'llvd' is not recognized as an internal or external command` after successfully installing `llvd`, run `python3 -m llvd <flags>`
+
 ## How to find the course slug ?
 
 - Click on the course
