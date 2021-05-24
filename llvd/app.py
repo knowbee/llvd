@@ -143,7 +143,7 @@ class App:
                                              ['selectedVideo']['durationInSeconds']) * 1000
 
                         click.echo(
-                            click.style(f"\nCurrent: {chapters_index:0=2d}-{clean_name(chapter_name)}/"\
+                            click.style(f"\nCurrent: {chapters_index-1:0=2d}-{clean_name(chapter_name)}/"\
                                 f"{video_index:0=2d}-{video_name}.mp4 @{self.video_format}p"))
                         current_files = []
                         for file in os.listdir(chapter_path):
