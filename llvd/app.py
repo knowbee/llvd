@@ -80,7 +80,7 @@ class App:
                             os.makedirs(f'{self.course_slug}')
                         self.download_entire_course()
 
-        except requests.exceptions.ConnectionError:
+        except ConnectionError:
             click.echo(click.style(f"Failed to connect", fg="red"))
 
     @staticmethod
@@ -174,7 +174,10 @@ class App:
             if len(exercise_files) > 0:
                 download_exercises(exercise_files, course_path)
             click.echo("\nFinished, start learning! :)")
-
+        except requests.exceptions.TooManyRedirects:
+                    click.echo(click.style(f"Your cookie is expired", fg="red"))
+        except KeyError:
+                click.echo(click.style(f"That course is not found", fg="red"))
         except Exception as e:
             os.remove(f'{self.chapter_path}/{self.current_video_index:0=2d}-{clean_name(self.current_video_name)}.mp4')
             self.download_entire_course()
