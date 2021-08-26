@@ -13,7 +13,7 @@ from llvd.utils import clean_name
 
 
 class App:
-    def __init__(self, email, password, course_slug, resolution, caption):
+    def __init__(self, email, password, course_slug, resolution, caption, throttle):
 
         self.email = email
         self.password = password
@@ -26,6 +26,7 @@ class App:
         self.chapter_path = ""
         self.current_video_index = None
         self.current_video_name = ""
+        self.throttle = throttle
 
     def login(self, s, login_data):
         """
@@ -108,6 +109,7 @@ class App:
             chapters = r.json()['elements'][0]['chapters']
             exercise_files = r.json()["elements"][0]["exerciseFileUrls"]
             chapters_index = 1
+            delay = self.throttle
 
             for chapter in chapters:
                 chapter_name = chapter["title"]
@@ -161,7 +163,7 @@ class App:
                                 click.style(f"Failed to download {video_name}", fg="red"))
                     else:
                         if clean_name(video_name) not in current_files:
-                            download_video(download_url, video_index, video_name, chapter_path)
+                            download_video(download_url, video_index, video_name, chapter_path, delay)
                             if subtitles is not None and self.caption:
                                 subtitle_lines = subtitles['lines']
                                 download_subtitles(
