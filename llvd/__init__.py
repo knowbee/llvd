@@ -23,7 +23,8 @@ RED_COLOR = "\u001b[31m"  # Makes the text red
               is_flag=True,
               help="Download subtitles")
 @click.option("--course", "-c", help="Example: 'java-8-essential'")
-def main(cookies, course, resolution, caption):
+@click.option("--throttle", "-t", help="A min,max wait in seconds before downloading next video. Example: -t 30,120")
+def main(cookies, course, resolution, caption, throttle):
     """
     Linkedin learning video downloader cli tool
     example: llvd --course "java-8-essential"
@@ -37,6 +38,9 @@ def main(cookies, course, resolution, caption):
     email = config.email
     password = config.password
 
+    if throttle and "," in throttle:
+        throttle = [ int(i) for i in throttle.split(",") ]
+
     if cookies:
         cookie_dict = parse_cookie_file()
         if "li_at" not in cookie_dict or "JSESSIONID" not in cookie_dict:
@@ -47,7 +51,7 @@ def main(cookies, course, resolution, caption):
             click.echo(
                 click.style(f"Using cookie info from cookies.txt", fg="green"))
 
-        llvd = App(email, password, course_slug, resolution, caption)
+        llvd = App(email, password, course_slug, resolution, caption, throttle)
         llvd.run(cookie_dict)
     else:
         if email == "":
@@ -56,5 +60,5 @@ def main(cookies, course, resolution, caption):
             password = click.prompt(
                 "Enter your Linkedin Password", hide_input=True)
 
-        llvd = App(email, password, course_slug, resolution, caption)
+        llvd = App(email, password, course_slug, resolution, caption, throttle)
         llvd.run()

@@ -6,13 +6,15 @@ import time
 import click
 import re
 import os
-from llvd.utils import clean_name, subtitles_time_format
+from llvd.utils import clean_name, subtitles_time_format, throttle
 
 
-def download_video(url, index, filename, path):
+def download_video(url, index, filename, path, delay=None):
     """
         Downloads a video and saves it by its name plus index for easy sorting
     """
+    if delay:
+        throttle( delay );
     maximum_retries = 5
     with open(f'{path}/{index:0=2d}-{clean_name(filename)}.mp4', 'wb') as f:
         download_size = 0
