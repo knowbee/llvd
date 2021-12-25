@@ -11,7 +11,8 @@ from llvd.utils import clean_dir
 
 BOLD = "\033[1m"  # Makes the text bold
 RED_COLOR = "\u001b[31m"  # Makes the text red
-
+PATH = 'path'
+COURSE = 'course'
 
 @click.command()
 @click.option('--cookies', is_flag=True,
@@ -23,8 +24,9 @@ RED_COLOR = "\u001b[31m"  # Makes the text red
               is_flag=True,
               help="Download subtitles")
 @click.option("--course", "-c", help="Example: 'java-8-essential'")
+@click.option("--path", "-p", help="Specify learning path to download.")
 @click.option("--throttle", "-t", help="A min,max wait in seconds before downloading next video. Example: -t 30,120")
-def main(cookies, course, resolution, caption, throttle):
+def main(cookies, course, resolution, caption, path, throttle):
     """
     Linkedin learning video downloader cli tool
     example: llvd --course "java-8-essential"
@@ -33,13 +35,35 @@ def main(cookies, course, resolution, caption, throttle):
         click.echo(f"{RED_COLOR}{BOLD}Missing required arguments: llvd --help")
         sys.exit(0)
 
-    course_slug = clean_dir(course)
+    if path:
+        course_slug = (clean_dir(path), PATH)
+    else:
+        course_slug = (clean_dir(course), COURSE)
 
     email = config.email
     password = config.password
 
     if throttle and "," in throttle:
         throttle = [ int(i) for i in throttle.split(",") ]
+
+    # Check that both course and path are not both set. Can only be one or other.
+    if course and path:
+        click.echo(
+            click.style(
+                "Please specify either a course OR learning path, not both.",
+                fg="red"
+            )
+        )
+        sys.exit(0)
+
+    if path and not throttle:
+        click.echo(
+            click.style(
+                "Please use throttle option (-t) when downloading learning paths.",
+                fg="red"
+            )
+        )
+        sys.exit(0)
 
     if cookies:
         cookie_dict = parse_cookie_file()
