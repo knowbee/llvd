@@ -3,9 +3,11 @@ import re
 import sys
 import requests
 import click
+import json
 from bs4 import BeautifulSoup as bs
 from requests import Session
 from llvd import config
+from llvd.exceptions import EmptyCourseList
 from llvd.downloader import download_subtitles, download_video, download_exercises
 from click_spinner import spinner
 import re
@@ -14,10 +16,10 @@ from llvd.utils import clean_name
 
 class App:
     def __init__(self, email, password, course_slug, resolution, caption, throttle):
-
         self.email = email
         self.password = password
-        self.course_slug = course_slug
+        self.course_slug = course_slug[0]   # slug name
+        self.course_type = course_slug[1]   # slug type: 'course' or 'path'
         self.link = ""
         self.video_format = resolution
         self.caption = caption
@@ -57,7 +59,7 @@ class App:
                 self.cookies["JSESSIONID"] = cookies.get("JSESSIONID")
                 self.cookies["li_at"] = cookies.get("li_at")
                 self.headers["Csrf-Token"] = cookies.get("JSESSIONID")
-                self.download_entire_course()
+                self.download()
             else:
                 with Session() as s:
                     site = s.get(config.login_url)
@@ -77,12 +79,20 @@ class App:
                             click.style(f"Wrong credentials, try again", fg="red"))
                         sys.exit(0)
                     else:
-                        if not os.path.exists(f'{self.course_slug}'):
-                            os.makedirs(f'{self.course_slug}')
-                        self.download_entire_course()
+                        self.create_course_dirs(self.course_slug);
+                        self.download()
 
         except ConnectionError:
             click.echo(click.style(f"Failed to connect", fg="red"))
+
+    @staticmethod
+    def create_course_dirs(course_slug):
+        """
+            Create file system path for courses
+        """
+        if not os.path.exists(f'{course_slug}'):
+            os.makedirs(f'{course_slug}')
+
 
     @staticmethod
     def resume_failed_ownloads():
@@ -96,7 +106,52 @@ class App:
                     os.remove(file)
             click.echo(click.style(f"Resuming download..", fg="red"))
 
-    def download_entire_course(self):
+
+    def download(self):
+        """
+            Determines whether to download from learning path
+            or from a course directly.
+        """
+        PATH = 'path'
+        if self.course_type == PATH:
+            self.download_courses_from_path()
+        else:
+            self.download_entire_course()
+
+
+    def download_courses_from_path(self):
+        """
+            Download courses from learning path
+        """
+        try:
+            page_url = config.path_url.format(self.course_slug)
+            page = requests.get( page_url )
+            soup = bs(page.content, "html.parser")
+            course_list = soup.select('script[type="application/ld+json"]')
+
+            if not course_list:
+                raise EmptyCourseList
+            else:
+                course_list = course_list[0]
+
+            course_list = json.loads(course_list.string.replace('\n',''))
+            total_courses = len(course_list['itemListElement'])
+            click.echo(f"Downloading {total_courses} courses from learning-path: {self.course_slug}\n")
+
+            for index,course in enumerate(course_list['itemListElement']):
+                course_token = course['item']['url'].split('/')[-1]
+                suppress = index + 1 != total_courses
+                click.echo(f"\nDownloading course {index+1}/{total_courses}: {course_token}")
+                self.course_slug = course_token
+                self.create_course_dirs(course_token);
+                self.download_entire_course(skip_done_alert=suppress)
+
+        except EmptyCourseList as e:
+            click.echo(click.style(f"Error parsing learning path.\n{e}", fg="red"))
+        except Exception as e:
+            click.echo(click.style(f"Error fetching courses from learning path!\n{e}", fg="red"))
+
+    def download_entire_course(self, *args, **kwargs):
         """
             Download a course
         """
@@ -175,6 +230,8 @@ class App:
 
             if len(exercise_files) > 0:
                 download_exercises(exercise_files, course_path)
+            if kwargs.get('skip_done_alert'):
+                return
             click.echo("\nFinished, start learning! :)")
         except requests.exceptions.TooManyRedirects:
                     click.echo(click.style(f"Your cookie is expired", fg="red"))
