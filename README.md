@@ -13,6 +13,7 @@
 | Status | Feature                                 |
 | :----- | :-------------------------------------- |
 | ✅     | cookie-based authentication             |
+| ✅     | download by learning path               |
 | ✅     | download a course and all its exercises |
 | ✅     | group videos by chapters                |
 | ✅     | subtitles                               |
