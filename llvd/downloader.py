@@ -64,10 +64,9 @@ def download_exercises(links, path):
     """
         Downloads exercises
     """
-    maximum_retries = 3
 
     for link in links:
-
+        maximum_retries = 3
         filename = re.split("exercises/(.+).zip", link)[1]
 
         with open(f"{path}/{clean_name(filename)}.zip", 'wb') as f:
