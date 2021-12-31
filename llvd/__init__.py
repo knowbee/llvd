@@ -47,6 +47,8 @@ def main(cookies, course, resolution, caption, path, throttle):
 
     if throttle and "," in throttle:
         throttle = [int(i) for i in throttle.split(",")]
+    else:
+        throttle = [int(throttle)]
 
     # Check that both course and path are not both set. Can only be one or other.
     if course and path:
