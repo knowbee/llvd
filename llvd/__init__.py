@@ -45,10 +45,14 @@ def main(cookies, course, resolution, caption, path, throttle):
     email = config.email
     password = config.password
 
-    if throttle and "," in throttle:
-        throttle = [int(i) for i in throttle.split(",")]
-    elif throttle != None:
-        throttle = [int(throttle)]
+    try:
+        if throttle and "," in throttle:
+            throttle = [int(i) for i in throttle.split(",")]
+        elif throttle != None:
+            throttle = [int(throttle)]
+    except ValueError:
+        click.echo(click.style("Throttle must be a number", fg="red"))
+        sys.exit(0)
 
     # Check that both course and path are not both set. Can only be one or other.
     if course and path:
