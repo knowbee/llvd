@@ -12,7 +12,7 @@ from llvd.downloader import download_subtitles, download_video, download_exercis
 from click_spinner import spinner
 import re
 from llvd.utils import clean_name
-
+import traceback
 
 class App:
     def __init__(self, email, password, course_slug, resolution, caption, throttle):
@@ -238,6 +238,7 @@ class App:
         except KeyError:
                 click.echo(click.style(f"That course is not found", fg="red"))
         except Exception as e:
-            os.remove(f'{self.chapter_path}/{self.current_video_index:0=2d}-{clean_name(self.current_video_name)}.mp4')
+            if os.path.exists(f'{self.chapter_path}/{self.current_video_index:0=2d}-{clean_name(self.current_video_name)}.mp4'):
+                os.remove(f'{self.chapter_path}/{self.current_video_index:0=2d}-{clean_name(self.current_video_name)}.mp4')
+            traceback.print_exc()    
             self.download_entire_course()
-            
