@@ -219,12 +219,12 @@ class App:
                     else:
                         if clean_name(video_name) not in current_files:
                             download_video(download_url, video_index, video_name, chapter_path, delay)
-                            if subtitles is not None and self.caption:
-                                subtitle_lines = subtitles['lines']
-                                download_subtitles(
-                                    video_index, subtitle_lines, video_name, chapter_path, duration_in_ms)
                         else:
                             click.echo(f"Skipping already existing video...")
+                        if subtitles is not None and self.caption:
+                            subtitle_lines = subtitles['lines']
+                            download_subtitles(
+                                video_index, subtitle_lines, video_name, chapter_path, duration_in_ms)
                             
                     video_index += 1
 
