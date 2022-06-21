@@ -139,10 +139,14 @@ or
 
 <a name="course-path"/>
 
-## Download a course path with throttling between 30 to 120 seconds
+## Download a course path with throttling between 10 to 30 seconds
+To avoid rate limits because of downloading a lot of videos, use the following:
+
 ```cli
-$ llvd -p "path-slug" -t 30,120
+$ llvd -p "path-slug" -t 10,30
 ```
+
+
 <a name="screenshot"/>
 
 # Screenshots
