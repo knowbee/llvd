@@ -58,6 +58,17 @@ If you have multiple versions of python installed in your system, use **pip3** i
 $ pip3 --no-cache-dir install llvd
 ```
 
+### Running from local installation
+```
+llvd --help
+llvd -c "course-slug" -r 720
+```
+### Running from docker container
+```
+# You will need to either use `docker cp` to get the course or mount it when running.
+docker run ghcr.io/knowbee/llvd:master -c "course-slug" -r 720
+```
+
 <a name="windows"/>
 
 ## Windows Users
