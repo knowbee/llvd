@@ -95,7 +95,7 @@ class App:
 
 
     @staticmethod
-    def resume_failed_ownloads():
+    def resume_failed_downloads():
         """
             Resume failed downloads
         """
@@ -155,7 +155,7 @@ class App:
         """
             Download a course
         """
-        self.resume_failed_ownloads()
+        self.resume_failed_downloads()
         try:
             r = requests.get(config.course_url.format(
                 self.course_slug), cookies=self.cookies, headers=self.headers)
