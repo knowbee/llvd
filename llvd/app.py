@@ -164,11 +164,15 @@ class App:
             chapters = r.json()['elements'][0]['chapters']
             exercise_files = r.json()["elements"][0]["exerciseFileUrls"]
             chapters_index = 1
-            if len(chapters) > 0 and chapters[0]["title"] == "Introduction":
+            if len(chapters) > 0 and chapters[0]["title"] in ["Introduction", "Welcome"]:
                 chapters_index = 0
             chapters_pad_length = 1
-            if len(chapters) > 9:
-                chapters_pad_length = 2
+            if chapters_index == 0:
+                if len(chapters) - 1 > 9:
+                    chapters_pad_length = 2
+            else:
+                if len(chapters) > 9:
+                    chapters_pad_length = 2
             delay = self.throttle
 
             for chapter in chapters:
