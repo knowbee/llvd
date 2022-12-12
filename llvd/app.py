@@ -95,7 +95,7 @@ class App:
 
 
     @staticmethod
-    def resume_failed_ownloads():
+    def resume_failed_downloads():
         """
             Resume failed downloads
         """
@@ -155,7 +155,7 @@ class App:
         """
             Download a course
         """
-        self.resume_failed_ownloads()
+        self.resume_failed_downloads()
         try:
             r = requests.get(config.course_url.format(
                 self.course_slug), cookies=self.cookies, headers=self.headers)
@@ -164,16 +164,26 @@ class App:
             chapters = r.json()['elements'][0]['chapters']
             exercise_files = r.json()["elements"][0]["exerciseFileUrls"]
             chapters_index = 1
+            if len(chapters) > 0 and chapters[0]["title"] in ["Introduction", "Welcome"]:
+                chapters_index = 0
+            chapters_pad_length = 1
+            if chapters_index == 0:
+                if len(chapters) - 1 > 9:
+                    chapters_pad_length = 2
+            else:
+                if len(chapters) > 9:
+                    chapters_pad_length = 2
             delay = self.throttle
 
             for chapter in chapters:
                 chapter_name = chapter["title"]
                 videos = chapter["videos"]
-                chapter_path = f'./{self.course_slug}/{chapters_index:0=2d}-{clean_name(chapter_name)}'
+                chapters_index_padded = str(chapters_index).rjust(chapters_pad_length, "0")
+                chapter_path = f'./{self.course_slug}/{chapters_index_padded}. {clean_name(chapter_name)}'
                 course_path = f'./{self.course_slug}'
                 chapters_index += 1
                 video_index = 1
-                self.chapter_path = f'./{self.course_slug}/{chapters_index-1:0=2d}-{clean_name(chapter_name)}'
+                self.chapter_path = f'./{self.course_slug}/{chapters_index_padded}. {clean_name(chapter_name)}'
                 if not os.path.exists(chapter_path):
                     os.makedirs(chapter_path)
                 for video in videos:
@@ -200,13 +210,13 @@ class App:
                                              ['selectedVideo']['durationInSeconds']) * 1000
 
                         click.echo(
-                            click.style(f"\nCurrent: {chapters_index-1:0=2d}-{clean_name(chapter_name)}/"\
-                                f"{video_index:0=2d}-{video_name}.mp4 @{self.video_format}p"))
+                            click.style(f"\nCurrent: {chapters_index_padded}. {clean_name(chapter_name)}/"\
+                                f"{video_index:0=2d}. {video_name}.mp4 @{self.video_format}p"))
                         current_files = []
                         for file in os.listdir(chapter_path):
-                            if file.endswith(".mp4") and "-" in file:
+                            if file.endswith(".mp4") and ". " in file:
                                 ff = re.split(
-                                    "\d+-", file)[1].replace(".mp4", "")
+                                    "\d+\. ", file)[1].replace(".mp4", "")
                                 current_files.append(ff)
                     except Exception as e:
                         if 'url' in str(e):
@@ -238,7 +248,7 @@ class App:
         except KeyError:
                 click.echo(click.style(f"That course is not found", fg="red"))
         except Exception as e:
-            if os.path.exists(f'{self.chapter_path}/{self.current_video_index:0=2d}-{clean_name(self.current_video_name)}.mp4'):
-                os.remove(f'{self.chapter_path}/{self.current_video_index:0=2d}-{clean_name(self.current_video_name)}.mp4')
+            if os.path.exists(f'{self.chapter_path}/{self.current_video_index:0=2d}. {clean_name(self.current_video_name)}.mp4'):
+                os.remove(f'{self.chapter_path}/{self.current_video_index:0=2d}. {clean_name(self.current_video_name)}.mp4')
             traceback.print_exc()    
             self.download_entire_course()
