@@ -13,8 +13,9 @@ from click_spinner import spinner
 import re
 from llvd.utils import clean_name
 import traceback
-
-
+import click
+import sys
+from llvd import config
 class App:
     def __init__(
         self, email, password, course_slug, resolution, caption, exercise, throttle
@@ -31,13 +32,12 @@ class App:
         self.headers = {}
         self.chapter_path = ""
         self.current_video_index = None
+        self.current_chapter_index = None
         self.current_video_name = ""
         self.throttle = throttle
 
     def login(self, session, login_data):
-        """
-        Login the user
-        """
+
         try:
             with spinner():
 
@@ -139,7 +139,8 @@ class App:
                 self.download_courses_from_path()
             else:
                 self.download_entire_course()
-        except TypeError:
+        except TypeError as e:
+            print(e)
             click.echo(
                 click.style(
                     f"There is a connection error. Please check your connectivity.\n",
@@ -164,9 +165,7 @@ class App:
             )
 
     def download_courses_from_path(self):
-        """
-        Download courses from learning path
-        """
+
         try:
             page_url = config.path_url.format(self.course_slug)
             page = requests.get(page_url)
@@ -204,10 +203,105 @@ class App:
                 )
             )
 
+    def fetch_video(self, video):
+        video_name = re.sub(r'[\\/*?:"<>|]', "", video["title"])
+        self.current_video_name = video_name
+        video_slug = video["slug"]
+        video_url = config.video_url.format(
+            self.course_slug, self.video_format, video_slug
+        )
+        page_data = requests.get(
+            video_url,
+            cookies=self.cookies,
+            headers=self.headers,
+            allow_redirects=False,
+        )
+        page_json = page_data.json()
+        return page_json, video_name
+
+    def fetch_chapter(self, chapter, chapters_pad_length, delay):
+
+        chapter_name = chapter["title"]
+        videos = chapter["videos"]
+        chapters_index_padded = str(self.current_chapter_index).rjust(
+            chapters_pad_length, "0"
+        )
+        chapter_path = (
+            f"./{self.course_slug}/{chapters_index_padded}. {clean_name(chapter_name)}"
+        )
+        video_index = 1
+        self.chapter_path = (
+            f"./{self.course_slug}/{chapters_index_padded}. {clean_name(chapter_name)}"
+        )
+        if not os.path.exists(chapter_path):
+            os.makedirs(chapter_path)
+
+        for video in videos:
+            self.current_video_index = video_index
+            page_json, video_name = self.fetch_video(video)
+
+            try:
+                download_url = page_json["elements"][0]["selectedVideo"]["url"][
+                    "progressiveUrl"
+                ]
+                try:
+                    subtitles = page_json["elements"][0]["selectedVideo"]["transcript"]
+                except:
+                    click.echo(click.style(f"Subtitles not found", fg="red"))
+                    subtitles = None
+                duration_in_ms = (
+                    int(page_json["elements"][0]["selectedVideo"]["durationInSeconds"])
+                    * 1000
+                )
+
+                click.echo(
+                    click.style(
+                        f"\nCurrent: {chapters_index_padded}. {clean_name(chapter_name)}/"
+                        f"{video_index:0=2d}. {video_name}.mp4 @{self.video_format}p"
+                    )
+                )
+                current_files = []
+                for file in os.listdir(chapter_path):
+                    if file.endswith(".mp4") and ". " in file:
+                        ff = re.split("\d+\. ", file)[1].replace(".mp4", "")
+                        current_files.append(ff)
+            except Exception as e:
+                if "url" in str(e):
+                    click.echo(
+                        click.style(
+                            f"This video is locked, you probably "
+                            f"need a premium account",
+                            fg="red",
+                        )
+                    )
+                else:
+                    click.echo(
+                        click.style(f"Failed to download {video_name}", fg="red")
+                    )
+            finally:
+                if clean_name(video_name) not in current_files:
+                    download_video(
+                        download_url,
+                        video_index,
+                        video_name,
+                        chapter_path,
+                        delay,
+                    )
+                else:
+                    click.echo(f"Skipping already existing video...")
+                if subtitles is not None and self.caption:
+                    subtitle_lines = subtitles["lines"]
+                    download_subtitles(
+                        video_index,
+                        subtitle_lines,
+                        video_name,
+                        chapter_path,
+                        duration_in_ms,
+                    )
+            video_index += 1
+
     def download_entire_course(self, *args, **kwargs):
-        """
-        Download a course
-        """
+
         self.remove_failed_downloads()
         try:
             r = requests.get(
@@ -218,6 +312,7 @@ class App:
             )
             course_name = r.json()["elements"][0]["title"]
             course_name = re.sub(r'[\\/*?:"<>|]', "", course_name)
+            course_path = f"./{self.course_slug}"
             chapters = r.json()["elements"][0]["chapters"]
             exercise_files = r.json()["elements"][0]["exerciseFileUrls"]
             chapters_index = 1
@@ -236,108 +331,20 @@ class App:
             delay = self.throttle
 
             for chapter in chapters:
-                chapter_name = chapter["title"]
-                videos = chapter["videos"]
-                chapters_index_padded = str(chapters_index).rjust(
-                    chapters_pad_length, "0"
-                )
-                chapter_path = f"./{self.course_slug}/{chapters_index_padded}. {clean_name(chapter_name)}"
-                course_path = f"./{self.course_slug}"
+
+                self.current_chapter_index = chapters_index
+                self.fetch_chapter(chapter, chapters_pad_length, delay)
                 chapters_index += 1
-                video_index = 1
-                self.chapter_path = f"./{self.course_slug}/{chapters_index_padded}. {clean_name(chapter_name)}"
-                if not os.path.exists(chapter_path):
-                    os.makedirs(chapter_path)
-                for video in videos:
-                    video_name = re.sub(r'[\\/*?:"<>|]', "", video["title"])
-                    self.current_video_name = video_name
-                    video_slug = video["slug"]
-                    video_url = config.video_url.format(
-                        self.course_slug, self.video_format, video_slug
-                    )
-                    page_data = requests.get(
-                        video_url,
-                        cookies=self.cookies,
-                        headers=self.headers,
-                        allow_redirects=False,
-                    )
-                    page_json = page_data.json()
-                    self.current_video_index = video_index
-
-                    try:
-                        download_url = page_json["elements"][0]["selectedVideo"]["url"][
-                            "progressiveUrl"
-                        ]
-                        try:
-                            subtitles = page_json["elements"][0]["selectedVideo"][
-                                "transcript"
-                            ]
-                        except:
-                            click.echo(click.style(f"Subtitles not found", fg="red"))
-                            subtitles = None
-                        duration_in_ms = (
-                            int(
-                                page_json["elements"][0]["selectedVideo"][
-                                    "durationInSeconds"
-                                ]
-                            )
-                            * 1000
-                        )
-
-                        click.echo(
-                            click.style(
-                                f"\nCurrent: {chapters_index_padded}. {clean_name(chapter_name)}/"
-                                f"{video_index:0=2d}. {video_name}.mp4 @{self.video_format}p"
-                            )
-                        )
-                        current_files = []
-                        for file in os.listdir(chapter_path):
-                            if file.endswith(".mp4") and ". " in file:
-                                ff = re.split("\d+\. ", file)[1].replace(".mp4", "")
-                                current_files.append(ff)
-                    except Exception as e:
-                        if "url" in str(e):
-                            click.echo(
-                                click.style(
-                                    f"This video is locked, you probably "
-                                    f"need a premium account",
-                                    fg="red",
-                                )
-                            )
-                        else:
-                            click.echo(
-                                click.style(
-                                    f"Failed to download {video_name}", fg="red"
-                                )
-                            )
-                    finally:
-                        if clean_name(video_name) not in current_files:
-                            download_video(
-                                download_url,
-                                video_index,
-                                video_name,
-                                chapter_path,
-                                delay,
-                            )
-                        else:
-                            click.echo(f"Skipping already existing video...")
-                        if subtitles is not None and self.caption:
-                            subtitle_lines = subtitles["lines"]
-                            download_subtitles(
-                                video_index,
-                                subtitle_lines,
-                                video_name,
-                                chapter_path,
-                                duration_in_ms,
-                            )
-
-                    video_index += 1
 
             if self.exercise and len(exercise_files) > 0:
                 download_exercises(exercise_files, course_path)
+
             if kwargs.get("skip_done_alert"):
                 return
-            click.echo("\nFinished, start learning! :)")
+            click.echo(
+                "\nYour download is complete. Begin your learning journey now.! :)"
+            )
+
         except requests.exceptions.TooManyRedirects:
             click.echo(click.style(f"Your cookie is expired", fg="red"))
         except KeyError:
