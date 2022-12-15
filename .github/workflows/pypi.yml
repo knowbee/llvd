@@ -6,12 +6,16 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.6']
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.6.15
+          python-version: ${{ matrix.python-version }},
       - name: Install dependencies
         run: |
           pip install -e .
