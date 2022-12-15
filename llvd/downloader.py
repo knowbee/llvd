@@ -33,6 +33,8 @@ def download_video(url, index, filename, path, delay=None):
             unit_scale=True,
             position=0,
             leave=True,
+            miniters=1,
+            ascii=" ✹",
         )
         for chunk in response.iter_content(chunk_size=1024):
             if chunk:
@@ -77,6 +79,8 @@ def download_exercises(links, path):
                     unit_scale=True,
                     position=0,
                     leave=True,
+                    miniters=1,
+                    ascii=" ✹",
                     desc="Downloading exercise files...",
                 )
             else:
