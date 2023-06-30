@@ -15,6 +15,7 @@ from llvd.utils import clean_name
 import click
 import sys
 from llvd import config
+import subprocess
 class App:
     def __init__(
         self, email, password, course_slug, resolution, caption, exercise, throttle
@@ -76,6 +77,12 @@ class App:
                 self.cookies["JSESSIONID"] = cookies.get("JSESSIONID")
                 self.cookies["li_at"] = cookies.get("li_at")
                 self.headers["Csrf-Token"] = cookies.get("JSESSIONID")
+                
+                # remove empty files
+                command = 'find . -depth -type f -size 0 -exec rm {} +'
+                subprocess.run(command, shell=True)
+
+                # proceed to download
                 self.download()
             else:
                 with Session() as session:
@@ -236,8 +243,17 @@ class App:
         if not os.path.exists(chapter_path):
             os.makedirs(chapter_path)
 
+        current_files = []
+        for file in os.listdir(chapter_path):
+            if file.endswith(".mp4") and ". " in file:
+                ff = re.split("\d+\. ", file)[1].replace(".mp4", "")
+                current_files.append(ff)
+
+        # unique videos by checking if the video name is in the current files
+        videos = [video for video in videos if clean_name(video["title"]) not in current_files]
+
         for video in videos:
-            self.current_video_index = video_index
+            self.current_video_index = video_index + len(current_files)
             page_json, video_name = self.fetch_video(video)
 
             try:
@@ -257,14 +273,9 @@ class App:
                 click.echo(
                     click.style(
                         f"\nCurrent: {chapters_index_padded}. {clean_name(chapter_name)}/"
-                        f"{video_index:0=2d}. {video_name}.mp4 @{self.video_format}p"
+                        f"{video_index + len(current_files):0=2d}. {video_name}.mp4 @{self.video_format}p"
                     )
                 )
-                current_files = []
-                for file in os.listdir(chapter_path):
-                    if file.endswith(".mp4") and ". " in file:
-                        ff = re.split("\d+\. ", file)[1].replace(".mp4", "")
-                        current_files.append(ff)
             except Exception as e:
                 if "url" in str(e):
                     click.echo(
@@ -279,20 +290,17 @@ class App:
                         click.style(f"Failed to download {video_name}", fg="red")
                     )
             finally:
-                if clean_name(video_name) not in current_files:
-                    download_video(
-                        download_url,
-                        video_index,
-                        video_name,
-                        chapter_path,
-                        delay,
-                    )
-                else:
-                    click.echo(f"Skipping already existing video...")
+                download_video(
+                    download_url,
+                    self.current_video_index,
+                    video_name,
+                    chapter_path,
+                    delay,
+                )
                 if subtitles is not None and self.caption:
                     subtitle_lines = subtitles["lines"]
                     download_subtitles(
-                        video_index,
+                        self.current_video_index,
                         subtitle_lines,
                         video_name,
                         chapter_path,
