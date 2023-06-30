@@ -15,8 +15,10 @@ def download_video(url, index, filename, path, delay=None):
     with open(f"{path}/{index:0=2d}. {clean_name(filename)}.mp4", "wb") as f:
         download_size = 0
         while maximum_retries > 0:
-            requests.adapters.HTTPAdapter(max_retries=maximum_retries)
-            response = requests.get(
+            adapter = requests.adapters.HTTPAdapter(max_retries=maximum_retries)
+            session = requests.Session()
+            session.mount(url, adapter)
+            response = session.get(
                 url,
                 stream=True,
                 headers={"Accept-Encoding": None, "Content-Encoding": "gzip"},
@@ -43,7 +45,6 @@ def download_video(url, index, filename, path, delay=None):
                 pbar.update(len(chunk))
         pbar.close()
 
-
 def download_subtitles(index, subs, video_name, path, video_duration):
     """Write to a file (subtitle file) caption matching the right time."""
     with open(f"{path}/{index:0=2d}. {clean_name(video_name).strip()}.srt", "wb") as f:
@@ -54,7 +55,6 @@ def download_subtitles(index, subs, video_name, path, video_duration):
             caption = sub["caption"]
             line = f"{i}\n{subtitles_time_format(starts_at)} --> {subtitles_time_format(ends_at)}\n{caption}\n\n"
             f.write(line.encode("utf8"))
-
 
 def download_exercises(links, path):
     """Download exercises."""
