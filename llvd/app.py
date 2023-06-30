@@ -373,6 +373,14 @@ class App:
                     fg="red",
                 )
             )
+        except json.decoder.JSONDecodeError: 
+            click.echo(
+               click.style(
+                            f"The course is locked, you probably"
+                            f"need a premium account",
+                            fg="red",
+                )
+            )
         except Exception as e:
             if os.path.exists(
                 f"{self.chapter_path}/{self.current_video_index:0=2d}. {clean_name(self.current_video_name)}.mp4"
