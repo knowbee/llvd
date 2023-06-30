@@ -12,10 +12,10 @@ from llvd.downloader import download_subtitles, download_video, download_exercis
 from click_spinner import spinner
 import re
 from llvd.utils import clean_name
-import traceback
 import click
 import sys
 from llvd import config
+import subprocess
 class App:
     def __init__(
         self, email, password, course_slug, resolution, caption, exercise, throttle
@@ -54,7 +54,7 @@ class App:
         except ConnectionResetError:
             click.echo(
                 click.style(
-                    f"There is a connection error. Please check your connectivity.\n",
+                    f"ConnectionResetError: There is a connection error. Please check your connectivity.\n",
                     fg="red",
                 )
             )
@@ -62,7 +62,7 @@ class App:
         except requests.exceptions.ConnectionError:
             click.echo(
                 click.style(
-                    f"There is a connection error. Please check your connectivity.\n",
+                    f"ConnectionError: There is a connection error. Please check your connectivity.\n",
                     fg="red",
                 )
             )
@@ -77,6 +77,12 @@ class App:
                 self.cookies["JSESSIONID"] = cookies.get("JSESSIONID")
                 self.cookies["li_at"] = cookies.get("li_at")
                 self.headers["Csrf-Token"] = cookies.get("JSESSIONID")
+                
+                # remove empty files
+                command = 'find . -depth -type f -size 0 -exec rm {} +'
+                subprocess.run(command, shell=True)
+
+                # proceed to download
                 self.download()
             else:
                 with Session() as session:
@@ -106,7 +112,7 @@ class App:
                         self.download()
 
         except ConnectionError:
-            click.echo(click.style(f"Failed to connect", fg="red"))
+            click.echo(click.style(f"ConnectionError: Failed to connect", fg="red"))
 
     @staticmethod
     def create_course_dirs(course_slug):
@@ -140,18 +146,19 @@ class App:
             else:
                 self.download_entire_course()
         except TypeError as e:
-            print(e)
-            click.echo(
-                click.style(
-                    f"There is a connection error. Please check your connectivity.\n",
-                    fg="red",
-                )
-            )
+            print("retrying...")
+            self.download_entire_course()
+            # click.echo(
+            #     click.style(
+            #         f"TypeError: {e}\n",
+            #         fg="red",
+            #     )
+            # )
 
         except ConnectionResetError:
             click.echo(
                 click.style(
-                    f"There is a connection error. Please check your connectivity.\n",
+                    f"ConnectionResetError: There is a connection error. Please check your connectivity.\n",
                     fg="red",
                 )
             )
@@ -159,7 +166,7 @@ class App:
         except requests.exceptions.ConnectionError:
             click.echo(
                 click.style(
-                    f"There is a connection error. Please check your connectivity.\n",
+                    f"ConnectionError: There is a connection error. Please check your connectivity.\n",
                     fg="red",
                 )
             )
@@ -194,7 +201,7 @@ class App:
                 self.download_entire_course(skip_done_alert=suppress)
 
         except EmptyCourseList as e:
-            click.echo(click.style(f"Error parsing learning path.\n{e}", fg="red"))
+            click.echo(click.style(f"EmptyCourseList: Error parsing learning path.\n{e}", fg="red"))
 
         except Exception as e:
             click.echo(
@@ -236,8 +243,17 @@ class App:
         if not os.path.exists(chapter_path):
             os.makedirs(chapter_path)
 
+        current_files = []
+        for file in os.listdir(chapter_path):
+            if file.endswith(".mp4") and ". " in file:
+                ff = re.split("\d+\. ", file)[1].replace(".mp4", "")
+                current_files.append(ff)
+
+        # unique videos by checking if the video name is in the current files
+        videos = [video for video in videos if clean_name(video["title"]) not in current_files]
+
         for video in videos:
-            self.current_video_index = video_index
+            self.current_video_index = video_index + len(current_files)
             page_json, video_name = self.fetch_video(video)
 
             try:
@@ -257,14 +273,9 @@ class App:
                 click.echo(
                     click.style(
                         f"\nCurrent: {chapters_index_padded}. {clean_name(chapter_name)}/"
-                        f"{video_index:0=2d}. {video_name}.mp4 @{self.video_format}p"
+                        f"{video_index + len(current_files):0=2d}. {video_name}.mp4 @{self.video_format}p"
                     )
                 )
-                current_files = []
-                for file in os.listdir(chapter_path):
-                    if file.endswith(".mp4") and ". " in file:
-                        ff = re.split("\d+\. ", file)[1].replace(".mp4", "")
-                        current_files.append(ff)
             except Exception as e:
                 if "url" in str(e):
                     click.echo(
@@ -279,20 +290,17 @@ class App:
                         click.style(f"Failed to download {video_name}", fg="red")
                     )
             finally:
-                if clean_name(video_name) not in current_files:
-                    download_video(
-                        download_url,
-                        video_index,
-                        video_name,
-                        chapter_path,
-                        delay,
-                    )
-                else:
-                    click.echo(f"Skipping already existing video...")
+                download_video(
+                    download_url,
+                    self.current_video_index,
+                    video_name,
+                    chapter_path,
+                    delay,
+                )
                 if subtitles is not None and self.caption:
                     subtitle_lines = subtitles["lines"]
                     download_subtitles(
-                        video_index,
+                        self.current_video_index,
                         subtitle_lines,
                         video_name,
                         chapter_path,
@@ -346,22 +354,14 @@ class App:
             )
 
         except requests.exceptions.TooManyRedirects:
-            click.echo(click.style(f"Your cookie is expired", fg="red"))
-        except KeyError:
-            click.echo(click.style(f"That course is not found", fg="red"))
-
-        except TypeError:
-            click.echo(
-                click.style(
-                    f"There is a connection error. Please check your connectivity.\n",
-                    fg="red",
-                )
-            )
+            click.echo(click.style(f"TooManyRedirects: Your cookie is expired", fg="red"))
+        except KeyError as e:
+            click.echo(click.style(f"KeyError: That course is not found {e}", fg="red"))
 
         except ConnectionResetError:
             click.echo(
                 click.style(
-                    f"There is a connection error. Please check your connectivity.\n",
+                    f"ConnectionResetError: There is a connection error. Please check your connectivity.\n",
                     fg="red",
                 )
             )
@@ -369,7 +369,7 @@ class App:
         except requests.exceptions.ConnectionError:
             click.echo(
                 click.style(
-                    f"There is a connection error. Please check your connectivity.\n",
+                    f"ConnectionError: There is a connection error. Please check your connectivity.\n",
                     fg="red",
                 )
             )
@@ -380,5 +380,4 @@ class App:
                 os.remove(
                     f"{self.chapter_path}/{self.current_video_index:0=2d}. {clean_name(self.current_video_name)}.mp4"
                 )
-            traceback.print_exc()
             self.download_entire_course()
