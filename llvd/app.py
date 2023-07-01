@@ -316,7 +316,7 @@ class App:
                 config.course_url.format(self.course_slug),
                 cookies=self.cookies,
                 headers=self.headers,
-                allow_redirects=False,
+                allow_redirects=True,
             )
             course_name = r.json()["elements"][0]["title"]
             course_name = re.sub(r'[\\/*?:"<>|]', "", course_name)
@@ -373,13 +373,11 @@ class App:
                     fg="red",
                 )
             )
-        except json.decoder.JSONDecodeError: 
-            click.echo(
-               click.style(
-                            f"The course is locked, you probably"
+        except json.decoder.JSONDecodeError as e: 
+            click.echo(click.style(
+                            f"The course is locked, you probably "
                             f"need a premium account",
-                            fg="red",
-                )
+                            fg="red")
             )
         except Exception as e:
             if os.path.exists(
