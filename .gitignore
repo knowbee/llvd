@@ -6,3 +6,5 @@ local.*
 build
 dist
 *.txt
+*.srt
+venv
