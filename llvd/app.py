@@ -67,7 +67,7 @@ class App:
                 )
             )
 
-    def run(self, cookies=None):
+    def run(self, cookies=None, headers={}):
         """
         Main function, tries to login the user and when it succeeds, tries to download the course
         """
@@ -76,6 +76,8 @@ class App:
             if cookies is not None:
                 self.cookies["JSESSIONID"] = cookies.get("JSESSIONID")
                 self.cookies["li_at"] = cookies.get("li_at")
+
+                self.headers=headers
                 self.headers["Csrf-Token"] = cookies.get("JSESSIONID")
                 
                 # remove empty files

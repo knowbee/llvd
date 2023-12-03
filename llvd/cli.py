@@ -5,7 +5,7 @@ from llvd.app import App
 import click
 import sys
 from llvd import config
-from llvd.process_io import parse_cookie_file
+from llvd.process_io import parse_cookie_file, parse_header_file
 from llvd.utils import clean_dir
 
 
@@ -20,6 +20,11 @@ COURSE = "course"
     "--cookies",
     is_flag=True,
     help="Authenticate with cookies by following the guidelines provided in the documentation",
+)
+@click.option(
+    "--headers",
+    is_flag=True,
+    help="Change request headers",
 )
 @click.option(
     "--resolution",
@@ -40,7 +45,7 @@ COURSE = "course"
     "-t",
     help="A min,max wait in seconds before downloading next video. Example: -t 30,120",
 )
-def main(cookies, course, resolution, caption, exercise, path, throttle):
+def main(cookies, headers, course, resolution, caption, exercise, path, throttle):
     """
     Linkedin learning video downloader cli tool
     example: llvd --course "java-8-essential"
@@ -93,7 +98,12 @@ def main(cookies, course, resolution, caption, exercise, path, throttle):
             click.echo(click.style(f"Using cookie info from cookies.txt", fg="green"))
 
         app = App(email, password, course_slug, resolution, caption, exercise, throttle)
-        app.run(cookie_dict)
+        if headers:
+            header_dict = parse_header_file()
+            app.run(cookie_dict, header_dict)
+        else:
+            app.run(cookie_dict)
+
     else:
         if email == "":
             email = click.prompt("Please enter your Linkedin email address")
