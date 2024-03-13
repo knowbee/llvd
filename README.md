@@ -7,9 +7,11 @@
 - [Common questions](#common)
     - [How do I find the course slug?](#course-slug)
     - [Cookie-based authentication](#setup-cookie-based)
+    - [Header-based authentication](#setup-header-based)
 - [Examples](#examples)
     - [Accessing llvd documentation](#llvd-doc)
     - [Using cookie-based authentication](#use-cookie-based)
+    - [Using header-based authentication](#use-header-based)
     - [Download a course at a specific resolution](#specific-res)
     - [Download a course with subtitles](#with-sub)
     - [Download a course path with throttling between 30 to 120 seconds](#course-path)
@@ -141,6 +143,15 @@ $ llvd --help
 
 ```cli
 $ llvd -c "course-slug" --cookies
+```
+
+<a name="use-headers-based"/>
+
+## Using header-based authentication
+Has to use cookies in conjection with headers
+
+```cli
+$ llvd -c "course-slug" --cookies --headers
 ```
 
 <a name="specific-res"/>
