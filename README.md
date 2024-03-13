@@ -105,6 +105,25 @@ li_at=xxxxx
 JSESSIONID="ajax:xxxxxx"
 ```
 
+<a name="setup-header-based"/>
+
+## How do I setup header-based corporate account access?
+
+If you have a coporate connected account you can fix the download issue by using a `headers.txt` as per below.
+
+1. Create a file named `headers.txt` and place it in the folder you want to download your courses to
+2.  Right click on the page and select view source
+    - You can also reach here by using the keyboard combination: `ctrl`+`U`.
+3. Search for `enterpriseProfileHash` using `ctrl`+`F`
+4. `enterpriseProfileHash&quot;:&quot;XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX&quot;,&quot;` copy the code between the double `&quot;`
+<img src="https://raw.githubusercontent.com/bigmadkev/knowbee-hosting/master/assets/llvd_FindCodeInSourceCode.png" width="auto" height="auto"/>
+5. Open the `headers.txt` file and paste in the values of `x-li-identity` from the above.
+
+```sh
+x-li-identity=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+User-Agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 
+```
+
 <a name="examples"/>
 
 # Examples
