@@ -111,7 +111,7 @@ JSESSIONID="ajax:xxxxxx"
 
 ## How do I setup header-based corporate account access?
 
-If you have a coporate connected account you can fix the download issue by using a `headers.txt` as per below.
+If you have a corporate connected account you can fix the download issue by using a `headers.txt` as per below.
 
 1. Create a file named `headers.txt` and place it in the folder you want to download your courses to
 2.  Right click on the page and select view source
