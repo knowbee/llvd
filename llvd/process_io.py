@@ -18,3 +18,18 @@ def parse_cookie_file():
         click.echo(
             click.style(f"cookies.txt not found or is empty", fg="red"))
         sys.exit(0)
+
+def parse_header_file(path = "headers.txt"):
+    headers = {}
+    try:
+        with open(path, "r", encoding="utf8") as cookies_file:
+            lines = cookies_file.readlines()
+            for line in lines:
+                parts = line.split("=",1)
+                key, value = parts + [None]*(2-len(parts))
+                headers[key] = value.replace("\"", "").strip()
+        return headers
+    except FileNotFoundError:
+        click.echo(
+            click.style(f"{path} not found or is empty", fg="red"))
+        sys.exit(0)

@@ -7,9 +7,11 @@
 - [Common questions](#common)
     - [How do I find the course slug?](#course-slug)
     - [Cookie-based authentication](#setup-cookie-based)
+    - [Header-based authentication](#setup-header-based)
 - [Examples](#examples)
     - [Accessing llvd documentation](#llvd-doc)
     - [Using cookie-based authentication](#use-cookie-based)
+    - [Using header-based authentication](#use-header-based)
     - [Download a course at a specific resolution](#specific-res)
     - [Download a course with subtitles](#with-sub)
     - [Download a course path with throttling between 30 to 120 seconds](#course-path)
@@ -105,6 +107,25 @@ li_at=xxxxx
 JSESSIONID="ajax:xxxxxx"
 ```
 
+<a name="setup-header-based"/>
+
+## How do I setup header-based corporate account access?
+
+If you have a corporate connected account you can fix the download issue by using a `headers.txt` as per below.
+
+1. Create a file named `headers.txt` and place it in the folder you want to download your courses to
+2.  Right click on the page and select view source
+    - You can also reach here by using the keyboard combination: `ctrl`+`U`.
+3. Search for `enterpriseProfileHash` using `ctrl`+`F`
+4. `enterpriseProfileHash&quot;:&quot;XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX&quot;,&quot;` copy the code between the double `&quot;`
+<img src="https://raw.githubusercontent.com/bigmadkev/knowbee-hosting/master/assets/llvd_FindCodeInSourceCode.png" width="auto" height="auto"/>
+5. Open the `headers.txt` file and paste in the values of `x-li-identity` from the above.
+
+```sh
+x-li-identity=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+User-Agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 
+```
+
 <a name="examples"/>
 
 # Examples
@@ -122,6 +143,15 @@ $ llvd --help
 
 ```cli
 $ llvd -c "course-slug" --cookies
+```
+
+<a name="use-headers-based"/>
+
+## Using header-based authentication
+Has to use cookies in conjection with headers
+
+```cli
+$ llvd -c "course-slug" --cookies --headers
 ```
 
 <a name="specific-res"/>
