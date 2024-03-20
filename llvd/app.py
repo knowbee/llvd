@@ -16,6 +16,8 @@ import click
 import sys
 from llvd import config
 import subprocess
+
+
 class App:
     def __init__(
         self, email, password, course_slug, resolution, caption, exercise, throttle
@@ -77,11 +79,11 @@ class App:
                 self.cookies["JSESSIONID"] = cookies.get("JSESSIONID")
                 self.cookies["li_at"] = cookies.get("li_at")
 
-                self.headers=headers
+                self.headers = headers
                 self.headers["Csrf-Token"] = cookies.get("JSESSIONID")
-                
+
                 # remove empty files
-                command = 'find . -depth -type f -size 0 -exec rm {} +'
+                command = "find . -depth -type f -size 0 -exec rm {} +"
                 subprocess.run(command, shell=True)
 
                 # proceed to download
@@ -203,7 +205,11 @@ class App:
                 self.download_entire_course(skip_done_alert=suppress)
 
         except EmptyCourseList as e:
-            click.echo(click.style(f"EmptyCourseList: Error parsing learning path.\n{e}", fg="red"))
+            click.echo(
+                click.style(
+                    f"EmptyCourseList: Error parsing learning path.\n{e}", fg="red"
+                )
+            )
 
         except Exception as e:
             click.echo(
@@ -248,11 +254,13 @@ class App:
         current_files = []
         for file in os.listdir(chapter_path):
             if file.endswith(".mp4") and ". " in file:
-                ff = re.split("\d+\. ", file)[1].replace(".mp4", "")
+                ff = re.split(r"\d+\. ", file)[1].replace(".mp4", "")
                 current_files.append(ff)
 
         # unique videos by checking if the video name is in the current files
-        videos = [video for video in videos if clean_name(video["title"]) not in current_files]
+        videos = [
+            video for video in videos if clean_name(video["title"]) not in current_files
+        ]
 
         for video in videos:
             self.current_video_index = video_index + len(current_files)
@@ -356,7 +364,9 @@ class App:
             )
 
         except requests.exceptions.TooManyRedirects:
-            click.echo(click.style(f"TooManyRedirects: Your cookie is expired", fg="red"))
+            click.echo(
+                click.style(f"TooManyRedirects: Your cookie is expired", fg="red")
+            )
         except KeyError as e:
             click.echo(click.style(f"KeyError: That course is not found {e}", fg="red"))
 
@@ -375,11 +385,12 @@ class App:
                     fg="red",
                 )
             )
-        except json.decoder.JSONDecodeError as e: 
-            click.echo(click.style(
-                            f"The course is locked, you probably "
-                            f"need a premium account",
-                            fg="red")
+        except json.decoder.JSONDecodeError as e:
+            click.echo(
+                click.style(
+                    f"The course is locked, you probably " f"need a premium account",
+                    fg="red",
+                )
             )
         except Exception as e:
             if os.path.exists(
