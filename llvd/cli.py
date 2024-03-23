@@ -1,6 +1,5 @@
 import sys
 import click
-from llvd import config
 from llvd.app import App
 import click
 import sys
